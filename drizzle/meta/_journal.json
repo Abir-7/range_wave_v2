@@ -1,0 +1,48 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1760165943126,
+      "tag": "0000_majestic_mimic",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1760182709209,
+      "tag": "0001_strange_sasquatch",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1760249360180,
+      "tag": "0002_rich_vampiro",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1760262363384,
+      "tag": "0003_watery_diamondback",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1760347131979,
+      "tag": "0004_purple_callisto",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1760347790255,
+      "tag": "0005_careful_silver_samurai",
+      "breakpoints": true
+    }
+  ]
+}

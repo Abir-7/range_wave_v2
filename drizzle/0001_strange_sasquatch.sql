@@ -1,0 +1,1 @@
+ALTER TABLE "user_authentications" ADD COLUMN "is_success" boolean DEFAULT false NOT NULL;
