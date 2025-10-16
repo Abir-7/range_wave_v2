@@ -6,6 +6,7 @@ import { startConsumers } from "./app/lib/rabbitMq/worker";
 import { db } from "./app/db";
 import redis from "./app/lib/radis";
 import { initSocket } from "./app/lib/socket";
+import { seedAdmin } from "./app/db/seed_admin";
 
 // Create HTTP server
 const server = http.createServer(app);
@@ -19,6 +20,7 @@ server.listen(appConfig.server.port, async () => {
     await db.execute("select 1").then(() => logger.info("Database connected."));
     startConsumers(); // start RabbitMQ consumers
     initSocket(server);
+    await seedAdmin();
   } catch (err) {
     logger.error("Error during server startup:", err);
     process.exit(1); // exit if startup fails

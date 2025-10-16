@@ -1,0 +1,47 @@
+import { pgTable, uuid, integer, text } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
+import { UserProfiles } from "../../user/user_profiles.schema";
+import { Services } from "../../service_flow/service/service.schema";
+import { timestamps } from "../../../helper/columns.helpers";
+
+export const RatingByMechanic = pgTable("rating_by_mechanic", {
+  id: uuid("id").defaultRandom().primaryKey(),
+
+  rating: integer("rating").notNull(), // e.g., 1-5
+
+  text: text("text").notNull(),
+
+  mechanic_id: uuid("mechanic_id")
+    .notNull()
+    .references(() => UserProfiles.user_id, { onDelete: "cascade" }),
+
+  user_id: uuid("user_id")
+    .notNull()
+    .references(() => UserProfiles.user_id, { onDelete: "cascade" }),
+
+  service_id: uuid("service_id")
+    .notNull()
+    .references(() => Services.id, { onDelete: "cascade" }),
+
+  ...timestamps,
+});
+
+export const RatingByMechanicRelations = relations(
+  RatingByMechanic,
+  ({ one }) => ({
+    user: one(UserProfiles, {
+      fields: [RatingByMechanic.user_id],
+      references: [UserProfiles.user_id],
+    }),
+
+    mechanic: one(UserProfiles, {
+      fields: [RatingByMechanic.mechanic_id],
+      references: [UserProfiles.user_id],
+    }),
+
+    service: one(Services, {
+      fields: [RatingByMechanic.service_id],
+      references: [Services.id],
+    }),
+  })
+);

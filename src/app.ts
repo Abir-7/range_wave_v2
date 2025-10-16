@@ -28,8 +28,6 @@ app.use(limiter);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/api", router);
-// Routes
-//app.use(routes);
 
 app.get("/status", (req, res) => {
   res.send("Server is ok.");

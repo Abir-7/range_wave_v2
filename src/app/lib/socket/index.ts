@@ -16,7 +16,7 @@ export const initSocket = (server: http.Server) => {
     cors: { origin: "*" },
   });
 
-  logger.info("⚙️ Socket.IO initialized with auth");
+  logger.info("Socket.IO initialized with auth");
 
   io.use(async (socket, next) => {
     try {

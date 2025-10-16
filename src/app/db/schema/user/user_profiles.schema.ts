@@ -17,15 +17,22 @@ export const genderEnum = pgEnum("gender_enum", genders);
 // UserProfiles table
 export const UserProfiles = pgTable("user_profiles", {
   id: uuid("id").primaryKey().defaultRandom(),
+
+  // FK to users table, must exist
   user_id: uuid("user_id")
     .notNull()
-    .references(() => Users.id, { onDelete: "cascade" }), // FK to users table
+    .unique()
+    .references(() => Users.id, { onDelete: "cascade" }),
+
   full_name: varchar("full_name", { length: 100 }).notNull(),
-  user_name: varchar("user_name", { length: 50 }).notNull().unique(),
-  mobile: varchar("mobile", { length: 20 }).notNull().unique(),
-  address: text("address").notNull(),
-  gender: genderEnum("gender").notNull(),
-  image: text("image"), // URL or base64
+
+  // Optional fields
+  user_name: varchar("user_name", { length: 50 }).unique(), // nullable
+  mobile: varchar("mobile", { length: 20 }).unique(), // nullable
+  address: text("address"), // nullable
+  gender: genderEnum("gender"), // nullable
+  image: text("image"), // nullable
+
   ...timestamps,
 });
 

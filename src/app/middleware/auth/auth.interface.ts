@@ -10,7 +10,7 @@ export interface IDecodedData extends IAuthData {
   exp: number;
 }
 
-export const user_roles = ["super_admin", "user"] as const;
+export const user_roles = ["super_admin", "user", "mechanic"] as const;
 
 export type TUserRole = (typeof user_roles)[number];
 

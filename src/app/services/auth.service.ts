@@ -23,17 +23,17 @@ import { getRemainingMinutes } from "../utils/helper/getRemainingMitutes";
 import comparePassword from "../utils/helper/comparePassword";
 
 const registerUser = async (
-  userData: { email: string; password: string; role?: TUserRole },
+  userData: { email: string; password: string; role: TUserRole },
   profileData: {
     full_name: string;
-    user_name: string;
-    mobile: string;
-    address: string;
-    gender: "male" | "female" | "other";
+    user_name?: string;
+    mobile?: string;
+    address?: string;
+    gender?: "male" | "female" | "other";
     image?: string;
   }
 ) => {
-  const { email, password, role = "user" } = userData;
+  const { email, password, role } = userData;
 
   // Check if user already exists
   const existing = await UserRepository.findByEmail(email);

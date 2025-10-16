@@ -1,3 +1,4 @@
+import { MessagesRelations } from "./schema/chat/message/message.schema";
 // Make sure to install the 'pg' package
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
@@ -24,6 +25,17 @@ import {
   UserLocations,
   UserLocationsRelations,
 } from "./schema/user/user_location.schema";
+import { ChatRooms, ChatRoomsRelations } from "./schema/chat/room/room.schema";
+import { Messages } from "./schema/chat/message/message.schema";
+import {
+  RatingByMechanic,
+  RatingByMechanicRelations,
+} from "./schema/rating/given_by_mechanic/given_by_mechanic.schema";
+import {
+  RatingByUser,
+  RatingByUserRelations,
+} from "./schema/rating/given_by_user/given_by_user.schema";
+import { Payments, PaymentsRelations } from "./schema/payment/payment.schema";
 
 const pool = new Pool({
   connectionString: appConfig.database.dataBase_uri,
@@ -45,6 +57,16 @@ export const db = drizzle(pool, {
     UserCarsRelations,
     UserLocations,
     UserLocationsRelations,
+    ChatRooms,
+    ChatRoomsRelations,
+    Messages,
+    MessagesRelations,
+    RatingByMechanic,
+    RatingByUser,
+    RatingByMechanicRelations,
+    RatingByUserRelations,
+    Payments,
+    PaymentsRelations,
     // service
   },
 });
