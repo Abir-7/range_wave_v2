@@ -10,6 +10,7 @@ export const paymentTypeEnum = pgEnum("payment_type_enum", [
   "ONLINE",
   "OFFLINE",
 ]);
+
 export const paymentStatusEnum = pgEnum("payment_status_enum", [
   "CANCELLED",
   "PAID",
@@ -25,7 +26,7 @@ export const Payments = pgTable("payments", {
 
   bid_id: uuid("bid_id")
     .notNull()
-    .references(() => Bids.id, { onDelete: "cascade" }),
+    .references(() => Bids.id),
 
   service_id: uuid("service_id")
     .notNull()
@@ -33,11 +34,11 @@ export const Payments = pgTable("payments", {
 
   user_id: uuid("user_id")
     .notNull()
-    .references(() => UserProfiles.user_id, { onDelete: "cascade" }),
+    .references(() => UserProfiles.user_id),
 
   mechanic_id: uuid("mechanic_id")
     .notNull()
-    .references(() => UserProfiles.user_id, { onDelete: "cascade" }),
+    .references(() => UserProfiles.user_id),
 
   status: paymentStatusEnum("status").notNull(),
 
