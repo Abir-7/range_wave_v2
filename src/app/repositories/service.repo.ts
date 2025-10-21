@@ -2,8 +2,11 @@ import { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { db, schema } from "../db";
 import { Services } from "../db/schema/service_flow/service/service.schema";
 import { ServiceProgress } from "../db/schema/service_flow/progress/service_progress.schema";
-import { and, desc, eq, inArray, notExists } from "drizzle-orm";
+import { and, desc, eq, inArray, isNull, notExists, sql } from "drizzle-orm";
 import { Bids } from "../db/schema/service_flow/bid/bid.schema";
+import { RatingByMechanic } from "../db/schema/rating/given_by_mechanic/given_by_mechanic.schema";
+import { UserProfiles } from "../db/schema/user/user_profiles.schema";
+import { Users } from "../db/schema/user/user.schema";
 
 const makeServiceReq = async (
   data: typeof Services.$inferInsert,
@@ -62,12 +65,41 @@ export const getRunningProgress = async (user_id: string) => {
 //----------------------For mechanics------------------
 const getAvailableServicesForMechanic = async (mechanicId: string) => {
   const data = await db
-    .select({ service: Services })
+    .select({
+      service: {
+        id: Services.id,
+        issue: Services.issue,
+        description: Services.description,
+        scheduled_date: Services.scheduled_date,
+        created_at: Services.created_at,
+      },
+      average_rating:
+        sql<number>`COALESCE(AVG(${RatingByMechanic.rating}), 0)`.as(
+          "average_rating"
+        ),
+      user_profile_details: {
+        user_id: UserProfiles.user_id,
+        full_name: UserProfiles.full_name,
+        mobile: UserProfiles.mobile,
+        image: UserProfiles.image,
+      },
+      user_details: {
+        id: Users.id,
+        email: Users.email,
+        role: Users.role,
+        is_verified: Users.is_verified,
+        status: Users.status,
+      },
+    })
     .from(Services)
+    .leftJoin(UserProfiles, eq(UserProfiles.user_id, Services.user_id))
+    .leftJoin(Users, eq(Users.id, Services.user_id))
     .innerJoin(ServiceProgress, eq(ServiceProgress.service_id, Services.id))
+    .leftJoin(RatingByMechanic, eq(RatingByMechanic.user_id, Services.user_id))
     .where(
       and(
         eq(ServiceProgress.service_status, "FINDING"),
+        isNull(ServiceProgress.bid_id),
         notExists(
           db
             .select()
@@ -80,8 +112,11 @@ const getAvailableServicesForMechanic = async (mechanicId: string) => {
             )
         )
       )
-    );
+    )
+    .groupBy(Services.id, UserProfiles.id, Users.id)
+    .orderBy(desc(Services.created_at));
   console.log(data);
+
   return data;
 };
 
