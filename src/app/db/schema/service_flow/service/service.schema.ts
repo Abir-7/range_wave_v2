@@ -1,34 +1,9 @@
-import {
-  pgTable,
-  uuid,
-  varchar,
-  text,
-  boolean,
-  timestamp,
-  pgEnum,
-} from "drizzle-orm/pg-core";
+import { pgTable, uuid, varchar, text, timestamp } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { UserProfiles } from "../../user/user_profiles.schema";
 import { timestamps } from "../../../helper/columns.helpers";
-
-// Enums
-export const serviceStatusEnum = pgEnum("service_status", [
-  "FINDING",
-  "WAITING",
-  "WORKING",
-  "COMPLETED",
-  "CANCELLED",
-]);
-
-export const serviceCompletedEnum = pgEnum("service_completed", ["YES", "NO"]);
-
-export const cancelReasonEnum = pgEnum("cancel_reason", [
-  "Wait time is too long",
-  "Could not find mechanic",
-  "Mechanic not getting closer",
-  "Mechanic asked me to cancel",
-  "Other",
-]);
+import { Bids } from "../bid/bid.schema";
+import { ServiceProgress } from "../progress/service_progress.schema";
 
 // Services table
 export const Services = pgTable("services", {
@@ -41,17 +16,18 @@ export const Services = pgTable("services", {
   issue: varchar("issue", { length: 255 }).notNull(),
   description: text("description").notNull(),
 
-  status: serviceStatusEnum("status").notNull().default("FINDING"),
-  cancel_reason: cancelReasonEnum("cancel_reason"),
-
-  is_scheduled: boolean("is_scheduled").notNull().default(false),
   scheduled_date: timestamp("scheduled_date"),
   ...timestamps,
 });
 
-export const ServicesRelations = relations(Services, ({ one }) => ({
+export const ServicesRelations = relations(Services, ({ one, many }) => ({
   user: one(UserProfiles, {
     fields: [Services.user_id],
     references: [UserProfiles.user_id],
+  }),
+  bid_list: many(Bids),
+  service_progress: one(ServiceProgress, {
+    fields: [Services.id],
+    references: [ServiceProgress.service_id],
   }),
 }));

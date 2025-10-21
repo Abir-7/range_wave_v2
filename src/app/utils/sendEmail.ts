@@ -24,6 +24,7 @@ export async function sendEmail({
   purpose, // default if not provided
 }: IEmailOptions) {
   try {
+    console.log(code, "GG");
     const transporter = nodemailer.createTransport({
       host: appConfig.email.host,
       port: Number(appConfig.email.port),

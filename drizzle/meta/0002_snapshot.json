@@ -1,6 +1,6 @@
 {
-  "id": "83602cd2-aa16-4296-b68c-f12ac879c065",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "70d6c59f-8b89-498e-9726-da15b37f1108",
+  "prevId": "dda6d923-87cf-4e51-9169-a0fe4f4fcfd0",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -632,12 +632,6 @@
           "primaryKey": false,
           "notNull": false
         },
-        "amount": {
-          "name": "amount",
-          "type": "numeric(12, 2)",
-          "primaryKey": false,
-          "notNull": true
-        },
         "issue": {
           "name": "issue",
           "type": "varchar",
@@ -648,7 +642,8 @@
           "name": "extra_amount",
           "type": "numeric(12, 2)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false,
+          "default": "'0'"
         },
         "status": {
           "name": "status",
@@ -669,7 +664,7 @@
           "name": "cancel_reason",
           "type": "varchar(5255)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "updated_at": {
           "name": "updated_at",
@@ -1336,6 +1331,13 @@
           "type": "text",
           "primaryKey": false,
           "notNull": false
+        },
+        "is_profile_completed": {
+          "name": "is_profile_completed",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
         },
         "updated_at": {
           "name": "updated_at",

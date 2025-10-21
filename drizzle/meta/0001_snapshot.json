@@ -1,6 +1,6 @@
 {
-  "id": "7fa6e7b6-2237-4f84-b5c7-82fcaf9c51ff",
-  "prevId": "15790d52-3a8f-4dc6-8194-0f8f654d0b36",
+  "id": "dda6d923-87cf-4e51-9169-a0fe4f4fcfd0",
+  "prevId": "83602cd2-aa16-4296-b68c-f12ac879c065",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -211,26 +211,8 @@
           "primaryKey": false,
           "notNull": true
         },
-        "bid_id": {
-          "name": "bid_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "service_id": {
-          "name": "service_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "user_id": {
-          "name": "user_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "mechanic_id": {
-          "name": "mechanic_id",
+        "service_progress_id": {
+          "name": "service_progress_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
@@ -249,14 +231,8 @@
           "primaryKey": false,
           "notNull": true
         },
-        "amount": {
-          "name": "amount",
-          "type": "numeric(12, 2)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "extra_amount": {
-          "name": "extra_amount",
+        "total_amount": {
+          "name": "total_amount",
           "type": "numeric(12, 2)",
           "primaryKey": false,
           "notNull": true
@@ -283,56 +259,17 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "payments_bid_id_bids_id_fk": {
-          "name": "payments_bid_id_bids_id_fk",
+        "payments_service_progress_id_service_progress_id_fk": {
+          "name": "payments_service_progress_id_service_progress_id_fk",
           "tableFrom": "payments",
-          "tableTo": "bids",
+          "tableTo": "service_progress",
           "columnsFrom": [
-            "bid_id"
+            "service_progress_id"
           ],
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "payments_service_id_services_id_fk": {
-          "name": "payments_service_id_services_id_fk",
-          "tableFrom": "payments",
-          "tableTo": "services",
-          "columnsFrom": [
-            "service_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "payments_user_id_user_profiles_user_id_fk": {
-          "name": "payments_user_id_user_profiles_user_id_fk",
-          "tableFrom": "payments",
-          "tableTo": "user_profiles",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "user_id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "payments_mechanic_id_user_profiles_user_id_fk": {
-          "name": "payments_mechanic_id_user_profiles_user_id_fk",
-          "tableFrom": "payments",
-          "tableTo": "user_profiles",
-          "columnsFrom": [
-            "mechanic_id"
-          ],
-          "columnsTo": [
-            "user_id"
-          ],
-          "onDelete": "cascade",
+          "onDelete": "no action",
           "onUpdate": "no action"
         }
       },
@@ -385,8 +322,8 @@
           "primaryKey": false,
           "notNull": true
         },
-        "service_id": {
-          "name": "service_id",
+        "service_progress_id": {
+          "name": "service_progress_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
@@ -423,7 +360,7 @@
           "columnsTo": [
             "user_id"
           ],
-          "onDelete": "cascade",
+          "onDelete": "set null",
           "onUpdate": "no action"
         },
         "rating_by_mechanic_user_id_user_profiles_user_id_fk": {
@@ -436,15 +373,15 @@
           "columnsTo": [
             "user_id"
           ],
-          "onDelete": "cascade",
+          "onDelete": "set null",
           "onUpdate": "no action"
         },
-        "rating_by_mechanic_service_id_services_id_fk": {
-          "name": "rating_by_mechanic_service_id_services_id_fk",
+        "rating_by_mechanic_service_progress_id_service_progress_id_fk": {
+          "name": "rating_by_mechanic_service_progress_id_service_progress_id_fk",
           "tableFrom": "rating_by_mechanic",
-          "tableTo": "services",
+          "tableTo": "service_progress",
           "columnsFrom": [
-            "service_id"
+            "service_progress_id"
           ],
           "columnsTo": [
             "id"
@@ -494,8 +431,8 @@
           "primaryKey": false,
           "notNull": true
         },
-        "service_id": {
-          "name": "service_id",
+        "service_progress_id": {
+          "name": "service_progress_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
@@ -532,7 +469,7 @@
           "columnsTo": [
             "user_id"
           ],
-          "onDelete": "cascade",
+          "onDelete": "set null",
           "onUpdate": "no action"
         },
         "rating_by_user_user_id_user_profiles_user_id_fk": {
@@ -545,15 +482,15 @@
           "columnsTo": [
             "user_id"
           ],
-          "onDelete": "cascade",
+          "onDelete": "set null",
           "onUpdate": "no action"
         },
-        "rating_by_user_service_id_services_id_fk": {
-          "name": "rating_by_user_service_id_services_id_fk",
+        "rating_by_user_service_progress_id_service_progress_id_fk": {
+          "name": "rating_by_user_service_progress_id_service_progress_id_fk",
           "tableFrom": "rating_by_user",
-          "tableTo": "services",
+          "tableTo": "service_progress",
           "columnsFrom": [
-            "service_id"
+            "service_progress_id"
           ],
           "columnsTo": [
             "id"
@@ -579,8 +516,8 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "req_service_id": {
-          "name": "req_service_id",
+        "service_id": {
+          "name": "service_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
@@ -593,7 +530,7 @@
         },
         "price": {
           "name": "price",
-          "type": "numeric(10, 2)",
+          "type": "numeric(20, 2)",
           "primaryKey": false,
           "notNull": true
         },
@@ -605,15 +542,132 @@
           "notNull": true,
           "default": "'provided'"
         },
-        "extra_work": {
-          "name": "extra_work",
-          "type": "jsonb",
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
           "primaryKey": false,
           "notNull": false
         },
-        "location": {
-          "name": "location",
-          "type": "jsonb",
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "bids_service_id_services_id_fk": {
+          "name": "bids_service_id_services_id_fk",
+          "tableFrom": "bids",
+          "tableTo": "services",
+          "columnsFrom": [
+            "service_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "bids_mechanic_id_user_profiles_user_id_fk": {
+          "name": "bids_mechanic_id_user_profiles_user_id_fk",
+          "tableFrom": "bids",
+          "tableTo": "user_profiles",
+          "columnsFrom": [
+            "mechanic_id"
+          ],
+          "columnsTo": [
+            "user_id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.service_progress": {
+      "name": "service_progress",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "bid_id": {
+          "name": "bid_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "service_id": {
+          "name": "service_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "mechanic_id": {
+          "name": "mechanic_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "amount": {
+          "name": "amount",
+          "type": "numeric(12, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "issue": {
+          "name": "issue",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "extra_amount": {
+          "name": "extra_amount",
+          "type": "numeric(12, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "service_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'FINDING'"
+        },
+        "is_scheduled": {
+          "name": "is_scheduled",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "cancel_reason": {
+          "name": "cancel_reason",
+          "type": "varchar(5255)",
           "primaryKey": false,
           "notNull": true
         },
@@ -639,12 +693,25 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "bids_req_service_id_services_id_fk": {
-          "name": "bids_req_service_id_services_id_fk",
-          "tableFrom": "bids",
+        "service_progress_bid_id_bids_id_fk": {
+          "name": "service_progress_bid_id_bids_id_fk",
+          "tableFrom": "service_progress",
+          "tableTo": "bids",
+          "columnsFrom": [
+            "bid_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "service_progress_service_id_services_id_fk": {
+          "name": "service_progress_service_id_services_id_fk",
+          "tableFrom": "service_progress",
           "tableTo": "services",
           "columnsFrom": [
-            "req_service_id"
+            "service_id"
           ],
           "columnsTo": [
             "id"
@@ -652,9 +719,22 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "bids_mechanic_id_user_profiles_user_id_fk": {
-          "name": "bids_mechanic_id_user_profiles_user_id_fk",
-          "tableFrom": "bids",
+        "service_progress_user_id_user_profiles_user_id_fk": {
+          "name": "service_progress_user_id_user_profiles_user_id_fk",
+          "tableFrom": "service_progress",
+          "tableTo": "user_profiles",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "user_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "service_progress_mechanic_id_user_profiles_user_id_fk": {
+          "name": "service_progress_mechanic_id_user_profiles_user_id_fk",
+          "tableFrom": "service_progress",
           "tableTo": "user_profiles",
           "columnsFrom": [
             "mechanic_id"
@@ -662,7 +742,7 @@
           "columnsTo": [
             "user_id"
           ],
-          "onDelete": "cascade",
+          "onDelete": "no action",
           "onUpdate": "no action"
         }
       },
@@ -700,28 +780,6 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
-        },
-        "status": {
-          "name": "status",
-          "type": "service_status",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'FINDING'"
-        },
-        "cancel_reason": {
-          "name": "cancel_reason",
-          "type": "cancel_reason",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "is_scheduled": {
-          "name": "is_scheduled",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
         },
         "scheduled_date": {
           "name": "scheduled_date",
@@ -1279,6 +1337,13 @@
           "primaryKey": false,
           "notNull": false
         },
+        "is_profile_completed": {
+          "name": "is_profile_completed",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
@@ -1438,10 +1503,8 @@
       "name": "payment_status_enum",
       "schema": "public",
       "values": [
-        "CANCELLED",
         "PAID",
-        "UNPAID",
-        "REFUNDED"
+        "UNPAID"
       ]
     },
     "public.payment_type_enum": {
@@ -1460,32 +1523,14 @@
         "declined"
       ]
     },
-    "public.cancel_reason": {
-      "name": "cancel_reason",
-      "schema": "public",
-      "values": [
-        "Wait time is too long",
-        "Could not find mechanic",
-        "Mechanic not getting closer",
-        "Mechanic asked me to cancel",
-        "Other"
-      ]
-    },
-    "public.service_completed": {
-      "name": "service_completed",
-      "schema": "public",
-      "values": [
-        "YES",
-        "NO"
-      ]
-    },
     "public.service_status": {
       "name": "service_status",
       "schema": "public",
       "values": [
         "FINDING",
-        "WAITING",
+        "ON_THE_WAY",
         "WORKING",
+        "NEED_TO_PAY",
         "COMPLETED",
         "CANCELLED"
       ]

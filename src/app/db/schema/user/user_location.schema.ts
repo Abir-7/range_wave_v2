@@ -6,9 +6,9 @@ import { timestamps } from "../../helper/columns.helpers";
 export const UserLocations = pgTable("user_locations", {
   id: uuid("id").primaryKey().defaultRandom(),
 
-  user_profile_id: uuid("user_profile_id")
+  user_id: uuid("user_id")
     .notNull()
-    .references(() => UserProfiles.id, { onDelete: "cascade" }),
+    .references(() => UserProfiles.user_id, { onDelete: "cascade" }),
 
   apartment_no: varchar("apartment_no", { length: 50 }).notNull(),
   road_no: varchar("road_no", { length: 50 }).notNull(),
@@ -23,7 +23,7 @@ export const UserLocations = pgTable("user_locations", {
 
 export const UserLocationsRelations = relations(UserLocations, ({ one }) => ({
   profile: one(UserProfiles, {
-    fields: [UserLocations.user_profile_id],
+    fields: [UserLocations.user_id],
     references: [UserProfiles.id],
   }),
 }));

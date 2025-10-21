@@ -35,8 +35,10 @@ const registerUser = async (
 ) => {
   const { email, password, role } = userData;
 
+  const user_email = email?.toLowerCase().trim();
+
   // Check if user already exists
-  const existing = await UserRepository.findByEmail(email);
+  const existing = await UserRepository.findByEmail(user_email);
   if (existing && existing.is_verified) {
     throw new Error("User already exists with this email.");
   }
@@ -58,7 +60,7 @@ const registerUser = async (
     const { user } = await Repository.transaction(async (trx) => {
       const user = await AuthRepository.createUser(
         {
-          email,
+          email: user_email,
           password_hash,
           role,
           is_verified: false,
@@ -81,12 +83,12 @@ const registerUser = async (
         },
         trx
       );
-
+      console.log(otp);
       await publishJob("emailQueue", {
         to: user.email,
         subject: "Verification",
         code: otp,
-        project_name: "Home Cache",
+        project_name: "WrenchWave",
         expire_time: "10 min",
         purpose: "Verify your email",
       });
@@ -120,29 +122,57 @@ const verifyUser = async (user_id: string, code: string) => {
   }
 
   try {
-    await Repository.transaction(async (trx) => {
-      const updated_data = await UserRepository.updateUser(
-        user_id,
-        { is_verified: true, status: "active" },
-        trx
-      );
+    const { updated_data: updated_user, updated_auth } =
+      await Repository.transaction(async (trx) => {
+        const updated_data = await UserRepository.updateUser(
+          user_id,
+          { is_verified: true, status: "active" },
+          trx
+        );
 
-      if (!updated_data.is_verified) {
-        throw new AppError("Failed to verify user. Try again.", 400);
-      }
+        if (!updated_data.is_verified) {
+          throw new AppError("Failed to verify user. Try again.", 400);
+        }
 
-      const updated_auth = await AuthRepository.setAuthenticationSuccess(
-        getAuthenticationData.id,
-        true,
-        trx
-      );
+        const updated_auth = await AuthRepository.setAuthenticationSuccess(
+          getAuthenticationData.id,
+          true,
+          trx
+        );
 
-      if (!updated_auth.is_success) {
-        throw new AppError("Failed to verify user. Try again.", 400);
-      }
-    });
+        if (!updated_auth.is_success) {
+          throw new AppError("Failed to verify user. Try again.", 400);
+        }
 
-    return { message: "User successfully verified." };
+        return { updated_data, updated_auth };
+      });
+    const jwt_payload = {
+      user_email: updated_user.email,
+      user_id: updated_user.id,
+      user_role: updated_user.role,
+    } as IAuthData;
+
+    const access_token = jsonWebToken.generateToken(
+      jwt_payload,
+      appConfig.jwt.jwt_access_secret as string,
+      appConfig.jwt.jwt_access_exprire
+    );
+    const refress_token = jsonWebToken.generateToken(
+      jwt_payload,
+      appConfig.jwt.jwt_refresh_secret as string,
+      appConfig.jwt.jwt_refresh_exprire
+    );
+    const decoded_access_token = jsonWebToken.decodeToken(access_token);
+    const decoded_refresh_token = jsonWebToken.decodeToken(refress_token);
+
+    return {
+      access_token,
+      refress_token,
+      user_id: updated_user.id,
+      access_token_expire: decoded_access_token.exp,
+      refresh_token_expire: decoded_refresh_token.exp,
+      user_role: decoded_access_token.user_role,
+    };
   } catch (error) {
     throw error;
   }
@@ -157,7 +187,9 @@ const userLogin = async (data: {
     logger.info("No action take for role. Role has no value");
   }
 
-  const user_data = await UserRepository.findByEmail(data.email);
+  const user_data = await UserRepository.findByEmail(
+    data.email.toLowerCase().trim()
+  );
 
   if (!user_data) {
     throw new AppError("Account not found. Please check your email", 404);
@@ -197,6 +229,7 @@ const userLogin = async (data: {
     user_id: user_data.id,
     access_token_expire: decoded_access_token.exp,
     refresh_token_expire: decoded_refresh_token.exp,
+    user_role: decoded_access_token.user_role,
   };
 };
 
@@ -232,14 +265,14 @@ const resendCode = async (user_id: string) => {
     to: user_data.email,
     subject: "Resend",
     code: code,
-    project_name: "Home Cache",
+    project_name: "WrenchWave",
     expire_time: "10 min",
     purpose: "verify",
   });
 };
 
 const forgotPassword = async (user_email: string) => {
-  const user_data = await UserRepository.findByEmail(user_email);
+  const user_data = await UserRepository.findByEmail(user_email?.toLowerCase());
 
   if (!user_data) {
     throw new AppError("Account not found.", 404);
@@ -260,7 +293,7 @@ const forgotPassword = async (user_email: string) => {
     to: user_data.email,
     subject: "Forgot Password",
     code: code,
-    project_name: "Home Cache",
+    project_name: "WrenchWave",
     expire_time: "10 min",
     purpose: "verify",
   });

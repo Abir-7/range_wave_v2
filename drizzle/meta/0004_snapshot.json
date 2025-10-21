@@ -1,6 +1,6 @@
 {
-  "id": "83602cd2-aa16-4296-b68c-f12ac879c065",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "73d08281-295c-42b4-ab5f-ed1280f680f3",
+  "prevId": "8a9b27a3-9502-422e-b9be-334e2859bd18",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -632,23 +632,24 @@
           "primaryKey": false,
           "notNull": false
         },
-        "amount": {
-          "name": "amount",
-          "type": "numeric(12, 2)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "issue": {
-          "name": "issue",
+        "extra_issue": {
+          "name": "extra_issue",
           "type": "varchar",
           "primaryKey": false,
           "notNull": false
         },
-        "extra_amount": {
-          "name": "extra_amount",
+        "extra_issue_desc": {
+          "name": "extra_issue_desc",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "extra_price": {
+          "name": "extra_price",
           "type": "numeric(12, 2)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false,
+          "default": "'0'"
         },
         "status": {
           "name": "status",
@@ -669,7 +670,7 @@
           "name": "cancel_reason",
           "type": "varchar(5255)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "updated_at": {
           "name": "updated_at",
@@ -857,7 +858,7 @@
           "type": "boolean",
           "primaryKey": false,
           "notNull": true,
-          "default": true
+          "default": false
         },
         "updated_at": {
           "name": "updated_at",
@@ -1336,6 +1337,13 @@
           "type": "text",
           "primaryKey": false,
           "notNull": false
+        },
+        "is_profile_completed": {
+          "name": "is_profile_completed",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
         },
         "updated_at": {
           "name": "updated_at",

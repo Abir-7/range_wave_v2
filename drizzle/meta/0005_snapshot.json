@@ -1,6 +1,6 @@
 {
-  "id": "83602cd2-aa16-4296-b68c-f12ac879c065",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "93f5e744-d62f-4af3-8f18-ae403f9b6747",
+  "prevId": "73d08281-295c-42b4-ab5f-ed1280f680f3",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -539,8 +539,7 @@
           "type": "bid_status",
           "typeSchema": "public",
           "primaryKey": false,
-          "notNull": true,
-          "default": "'provided'"
+          "notNull": true
         },
         "updated_at": {
           "name": "updated_at",
@@ -632,23 +631,24 @@
           "primaryKey": false,
           "notNull": false
         },
-        "amount": {
-          "name": "amount",
-          "type": "numeric(12, 2)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "issue": {
-          "name": "issue",
+        "extra_issue": {
+          "name": "extra_issue",
           "type": "varchar",
           "primaryKey": false,
           "notNull": false
         },
-        "extra_amount": {
-          "name": "extra_amount",
+        "extra_issue_desc": {
+          "name": "extra_issue_desc",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "extra_price": {
+          "name": "extra_price",
           "type": "numeric(12, 2)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false,
+          "default": "'0'"
         },
         "status": {
           "name": "status",
@@ -669,7 +669,7 @@
           "name": "cancel_reason",
           "type": "varchar(5255)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "updated_at": {
           "name": "updated_at",
@@ -857,7 +857,7 @@
           "type": "boolean",
           "primaryKey": false,
           "notNull": true,
-          "default": true
+          "default": false
         },
         "updated_at": {
           "name": "updated_at",
@@ -912,8 +912,8 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "user_profile_id": {
-          "name": "user_profile_id",
+        "user_id": {
+          "name": "user_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
@@ -982,15 +982,15 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "mechanic_workshops_user_profile_id_user_profiles_id_fk": {
-          "name": "mechanic_workshops_user_profile_id_user_profiles_id_fk",
+        "mechanic_workshops_user_id_user_profiles_user_id_fk": {
+          "name": "mechanic_workshops_user_id_user_profiles_user_id_fk",
           "tableFrom": "mechanic_workshops",
           "tableTo": "user_profiles",
           "columnsFrom": [
-            "user_profile_id"
+            "user_id"
           ],
           "columnsTo": [
-            "id"
+            "user_id"
           ],
           "onDelete": "cascade",
           "onUpdate": "no action"
@@ -1104,8 +1104,8 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "user_profile_id": {
-          "name": "user_profile_id",
+        "user_id": {
+          "name": "user_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
@@ -1162,15 +1162,15 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "user_cars_user_profile_id_user_profiles_id_fk": {
-          "name": "user_cars_user_profile_id_user_profiles_id_fk",
+        "user_cars_user_id_user_profiles_user_id_fk": {
+          "name": "user_cars_user_id_user_profiles_user_id_fk",
           "tableFrom": "user_cars",
           "tableTo": "user_profiles",
           "columnsFrom": [
-            "user_profile_id"
+            "user_id"
           ],
           "columnsTo": [
-            "id"
+            "user_id"
           ],
           "onDelete": "cascade",
           "onUpdate": "no action"
@@ -1193,8 +1193,8 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "user_profile_id": {
-          "name": "user_profile_id",
+        "user_id": {
+          "name": "user_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
@@ -1263,15 +1263,15 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "user_locations_user_profile_id_user_profiles_id_fk": {
-          "name": "user_locations_user_profile_id_user_profiles_id_fk",
+        "user_locations_user_id_user_profiles_user_id_fk": {
+          "name": "user_locations_user_id_user_profiles_user_id_fk",
           "tableFrom": "user_locations",
           "tableTo": "user_profiles",
           "columnsFrom": [
-            "user_profile_id"
+            "user_id"
           ],
           "columnsTo": [
-            "id"
+            "user_id"
           ],
           "onDelete": "cascade",
           "onUpdate": "no action"
@@ -1336,6 +1336,13 @@
           "type": "text",
           "primaryKey": false,
           "notNull": false
+        },
+        "is_profile_completed": {
+          "name": "is_profile_completed",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
         },
         "updated_at": {
           "name": "updated_at",

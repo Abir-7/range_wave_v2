@@ -3,6 +3,7 @@ import { relations } from "drizzle-orm";
 import { UserProfiles } from "../../user/user_profiles.schema";
 import { Services } from "../../service_flow/service/service.schema";
 import { timestamps } from "../../../helper/columns.helpers";
+import { ServiceProgress } from "../../service_flow/progress/service_progress.schema";
 
 export const RatingByMechanic = pgTable("rating_by_mechanic", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -13,15 +14,15 @@ export const RatingByMechanic = pgTable("rating_by_mechanic", {
 
   mechanic_id: uuid("mechanic_id")
     .notNull()
-    .references(() => UserProfiles.user_id, { onDelete: "cascade" }),
+    .references(() => UserProfiles.user_id, { onDelete: "set null" }),
 
   user_id: uuid("user_id")
     .notNull()
-    .references(() => UserProfiles.user_id, { onDelete: "cascade" }),
+    .references(() => UserProfiles.user_id, { onDelete: "set null" }),
 
-  service_id: uuid("service_id")
+  service_progress_id: uuid("service_progress_id")
     .notNull()
-    .references(() => Services.id, { onDelete: "cascade" }),
+    .references(() => ServiceProgress.id, { onDelete: "cascade" }),
 
   ...timestamps,
 });
@@ -39,9 +40,9 @@ export const RatingByMechanicRelations = relations(
       references: [UserProfiles.user_id],
     }),
 
-    service: one(Services, {
-      fields: [RatingByMechanic.service_id],
-      references: [Services.id],
+    service: one(ServiceProgress, {
+      fields: [RatingByMechanic.service_progress_id],
+      references: [ServiceProgress.id],
     }),
   })
 );

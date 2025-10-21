@@ -20,14 +20,27 @@ export const consumeQueue = async (
       async (msg) => {
         if (!msg) return;
 
-        const data = JSON.parse(msg.content.toString());
+        console.log("Raw message buffer:", msg.content); // Buffer
+        const str = msg.content.toString();
+        console.log("Raw message string:", str);
+
+        let data;
+        try {
+          data = JSON.parse(str);
+        } catch (err) {
+          logger.error("Failed to parse message JSON:", str);
+          channel.nack(msg, false, false); // discard bad message
+          return;
+        }
+
+        console.log("Parsed data object:", data); // Should be your object
 
         try {
           await handler(data);
           channel.ack(msg);
         } catch (error: any) {
           logger.error(`Error processing ${queueName}: ${error.message}`);
-          channel.nack(msg, false, true); // Retry
+          channel.nack(msg, false, true);
         }
       },
       { noAck: false }

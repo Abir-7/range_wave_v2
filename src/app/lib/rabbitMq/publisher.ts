@@ -5,6 +5,7 @@ import { logger } from "../../utils/serverTools/logger";
 export const publishJob = async (queueName: string, payload: object) => {
   try {
     const channel = await getChannel(queueName);
+    console.log(payload);
     channel.sendToQueue(queueName, Buffer.from(JSON.stringify(payload)), {
       persistent: true,
     });

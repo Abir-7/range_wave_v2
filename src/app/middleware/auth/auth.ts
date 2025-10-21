@@ -26,7 +26,7 @@ export const auth =
         throw new AppError("You are unauthorize", 401);
       }
 
-      if (allowed_roles.includes(user_data.role)) {
+      if (!allowed_roles.includes(user_data.role)) {
         throw new AppError("You are unauthorize", 401);
       }
 
@@ -37,7 +37,7 @@ export const auth =
       };
 
       next();
-    } catch (err) {
-      return res.status(400).json({ message: "Invalid Basic token format" });
+    } catch (err: any) {
+      throw new Error(err);
     }
   };

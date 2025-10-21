@@ -8,6 +8,7 @@ import { Services } from "../service_flow/service/service.schema";
 import { UserCars } from "./user_carinfo.schema";
 import { MechanicWorkshop } from "./mechanics_workshop.schema";
 import { UserLocations } from "./user_location.schema";
+import { boolean } from "drizzle-orm/pg-core";
 
 // Optional: Gender enum
 export const genders = ["male", "female", "other"] as const;
@@ -32,7 +33,9 @@ export const UserProfiles = pgTable("user_profiles", {
   address: text("address"), // nullable
   gender: genderEnum("gender"), // nullable
   image: text("image"), // nullable
-
+  is_profile_completed: boolean("is_profile_completed")
+    .notNull()
+    .default(false),
   ...timestamps,
 });
 

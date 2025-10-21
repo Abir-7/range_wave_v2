@@ -36,37 +36,49 @@ import {
   RatingByUserRelations,
 } from "./schema/rating/given_by_user/given_by_user.schema";
 import { Payments, PaymentsRelations } from "./schema/payment/payment.schema";
+import {
+  ServiceProgress,
+  ServiceProgressRelation,
+} from "./schema/service_flow/progress/service_progress.schema";
 
 const pool = new Pool({
   connectionString: appConfig.database.dataBase_uri,
 });
+
+export const schema = {
+  //user & mechanic
+  UserAuthentications,
+  UserProfilesRelations,
+  Users,
+  UserProfiles,
+  UsersRelations,
+  UserAuthenticationsRelations,
+  MechanicWorkshopRelations,
+  MechanicWorkshop,
+  MechanicPaymentData,
+  UserPaymentDataRelations,
+  UserCars,
+  UserCarsRelations,
+  UserLocations,
+  UserLocationsRelations,
+  //chat
+  ChatRooms,
+  ChatRoomsRelations,
+  Messages,
+  MessagesRelations,
+  //rating
+  RatingByMechanic,
+  RatingByUser,
+  RatingByMechanicRelations,
+  RatingByUserRelations,
+  //payment
+  Payments,
+  PaymentsRelations,
+  // service
+  ServiceProgress,
+  ServiceProgressRelation,
+};
+
 export const db = drizzle(pool, {
-  schema: {
-    //user & mechanic
-    UserAuthentications,
-    UserProfilesRelations,
-    Users,
-    UserProfiles,
-    UsersRelations,
-    UserAuthenticationsRelations,
-    MechanicWorkshopRelations,
-    MechanicWorkshop,
-    MechanicPaymentData,
-    UserPaymentDataRelations,
-    UserCars,
-    UserCarsRelations,
-    UserLocations,
-    UserLocationsRelations,
-    ChatRooms,
-    ChatRoomsRelations,
-    Messages,
-    MessagesRelations,
-    RatingByMechanic,
-    RatingByUser,
-    RatingByMechanicRelations,
-    RatingByUserRelations,
-    Payments,
-    PaymentsRelations,
-    // service
-  },
+  schema: schema,
 });

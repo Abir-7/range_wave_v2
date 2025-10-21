@@ -1,20 +1,16 @@
+import { schema } from "./../db/index";
+import { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { Users } from "../db/schema/user/user.schema";
 
-import { NodePgQueryResultHKT } from "drizzle-orm/node-postgres/session";
 import { and, desc, eq } from "drizzle-orm";
 import { db } from "../db";
 
 import { UserProfiles } from "../db/schema/user/user_profiles.schema";
 import { UserAuthentications } from "../db/schema/user/user_authentication.schema";
-import { PgTransaction } from "drizzle-orm/pg-core";
-import { ExtractTablesWithRelations } from "drizzle-orm";
-import { asc } from "drizzle-orm";
-import { DatabaseTransaction } from "./helper.repo";
-import { string } from "zod";
 
 const createUser = async (
   data: typeof Users.$inferInsert,
-  trx?: DatabaseTransaction
+  trx?: NodePgDatabase<typeof schema>
 ) => {
   const [user] = await (trx || db).insert(Users).values(data).returning();
   return user;
@@ -24,7 +20,7 @@ const createUser = async (
 
 const createProfile = async (
   data: typeof UserProfiles.$inferInsert,
-  trx?: DatabaseTransaction
+  trx?: NodePgDatabase<typeof schema>
 ) => {
   const [profile] = await (trx || db)
     .insert(UserProfiles)
@@ -37,7 +33,7 @@ const createProfile = async (
 
 const createAuthentication = async (
   data: typeof UserAuthentications.$inferInsert,
-  trx?: DatabaseTransaction
+  trx?: NodePgDatabase<typeof schema>
 ) => {
   const [auth] = await (trx || db)
     .insert(UserAuthentications)
@@ -85,7 +81,7 @@ const getAuthenticationByUserId = async (user_id: string) => {
 const setAuthenticationSuccess = async (
   authId: string,
   value = true,
-  trx?: DatabaseTransaction
+  trx?: NodePgDatabase<typeof schema>
 ) => {
   const [data] = await (trx || db)
     .update(UserAuthentications)

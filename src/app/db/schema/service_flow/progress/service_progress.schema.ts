@@ -1,0 +1,63 @@
+import { text } from "drizzle-orm/pg-core";
+import { uuid } from "drizzle-orm/pg-core";
+import { pgTable } from "drizzle-orm/pg-core";
+import { Bids } from "../bid/bid.schema";
+import { Services } from "../service/service.schema";
+import { UserProfiles } from "../../user/user_profiles.schema";
+import { numeric } from "drizzle-orm/pg-core";
+import { varchar } from "drizzle-orm/pg-core";
+import { timestamps } from "../../../helper/columns.helpers";
+import { boolean } from "drizzle-orm/pg-core";
+import { pgEnum } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
+import { Payments } from "../../payment/payment.schema";
+
+export const serviceStatusEnum = pgEnum("service_status", [
+  "FINDING",
+  "ON_THE_WAY",
+  "WORKING",
+  "NEED_TO_PAY",
+  "COMPLETED",
+  "CANCELLED",
+]);
+
+export const ServiceProgress = pgTable("service_progress", {
+  id: uuid("id").defaultRandom().primaryKey(),
+
+  bid_id: uuid("bid_id").references(() => Bids.id),
+
+  service_id: uuid("service_id").references(() => Services.id, {
+    onDelete: "cascade",
+  }),
+
+  user_id: uuid("user_id")
+    .notNull()
+    .references(() => UserProfiles.user_id),
+
+  mechanic_id: uuid("mechanic_id").references(() => UserProfiles.user_id),
+  extra_issue: varchar("extra_issue"),
+  extra_issue_description: varchar("extra_issue_desc"),
+  extra_price: numeric("extra_price", { precision: 12, scale: 2 }).default("0"),
+  service_status: serviceStatusEnum("status").notNull().default("FINDING"),
+  is_scheduled: boolean("is_scheduled").notNull().default(false),
+  cancel_reason: varchar("cancel_reason", { length: 5255 }),
+  ...timestamps,
+});
+
+export const ServiceProgressRelation = relations(
+  ServiceProgress,
+  ({ one }) => ({
+    payment: one(Payments, {
+      fields: [ServiceProgress.id],
+      references: [Payments.service_progress_id],
+    }),
+    mechanic: one(UserProfiles, {
+      fields: [ServiceProgress.mechanic_id],
+      references: [UserProfiles.user_id],
+    }),
+    user: one(UserProfiles, {
+      fields: [ServiceProgress.user_id],
+      references: [UserProfiles.user_id],
+    }),
+  })
+);

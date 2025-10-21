@@ -47,6 +47,7 @@
     "jwt-decode": "^4.0.0",
     "nodemailer": "^7.0.9",
     "pg": "^8.16.3",
+    "postgres": "^3.4.7",
     "socket.io": "^4.8.1",
     "stripe": "^19.1.0",
     "uuid": "^13.0.0",

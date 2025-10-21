@@ -1,8 +1,8 @@
+import { jwtDecode } from "jwt-decode";
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import jwt from "jsonwebtoken";
 
-import { jwtDecode } from "jwt-decode";
 import { IAuthData, IDecodedData } from "../../middleware/auth/auth.interface";
 
 const verifyJwt = (token: string, secret: string) => {
@@ -28,6 +28,7 @@ const decodeToken = (token: string) => {
     const decoded = jwtDecode(token);
     return decoded as IDecodedData;
   } catch (error: any) {
+    console.error("JWT decode error:", error);
     throw new Error(error);
   }
 };

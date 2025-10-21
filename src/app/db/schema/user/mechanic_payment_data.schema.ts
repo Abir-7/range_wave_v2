@@ -12,7 +12,7 @@ export const MechanicPaymentData = pgTable("user_payment_data", {
 
   account_id: varchar("account_id", { length: 255 }).notNull(),
 
-  is_active: boolean("is_active").notNull().default(true),
+  is_active: boolean("is_active").notNull().default(false),
 
   ...timestamps,
 });
