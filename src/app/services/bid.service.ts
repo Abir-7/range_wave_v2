@@ -28,7 +28,19 @@ const getMechanicBidHistory = async (mechanic_id: string) => {
   return await BidRepository.getMechanicBidHistory(mechanic_id);
 };
 
+// =========== USER ===============
+
+const getBidListOfaService = async (service_id: string) => {
+  return await BidRepository.getBidListOfaService(service_id);
+};
+
+const getBidDetails = async (bid_id: string) => {
+  return await BidRepository.getBidDetails(bid_id);
+};
+
 export const BidService = {
   makeBid,
   getMechanicBidHistory,
+  getBidListOfaService,
+  getBidDetails,
 };

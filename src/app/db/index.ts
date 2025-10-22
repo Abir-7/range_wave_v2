@@ -40,6 +40,7 @@ import {
   ServiceProgress,
   ServiceProgressRelation,
 } from "./schema/service_flow/progress/service_progress.schema";
+import { Bids, BidsRelations } from "./schema/service_flow/bid/bid.schema";
 
 const pool = new Pool({
   connectionString: appConfig.database.dataBase_uri,
@@ -77,6 +78,9 @@ export const schema = {
   // service
   ServiceProgress,
   ServiceProgressRelation,
+  //Bid
+  Bids,
+  BidsRelations,
 };
 
 export const db = drizzle(pool, {

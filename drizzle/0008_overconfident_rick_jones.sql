@@ -1,0 +1,1 @@
+ALTER TABLE "services" ALTER COLUMN "coordinates" DROP DEFAULT;

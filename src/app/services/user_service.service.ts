@@ -53,8 +53,13 @@ const getAvailableServicesForMechanic = async (mechanic_id: string) => {
   return available_services;
 };
 
+const getServiceDetails = async (s_id: string) => {
+  return await ServiceRepository.getServiceDetails(s_id);
+};
+
 export const UserServiceReqService = {
   makeServiceReq,
   getRunningProgress,
   getAvailableServicesForMechanic,
+  getServiceDetails,
 };

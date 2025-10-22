@@ -20,5 +20,10 @@ router.get(
   auth(["mechanic"]),
   UserServiceController.getAvailableServicesForMechanic
 );
+router.get(
+  "/get_service_details/:s_id",
+  auth(["mechanic"]),
+  UserServiceController.getServiceDetails
+);
 
 export const ServiceRoute = router;

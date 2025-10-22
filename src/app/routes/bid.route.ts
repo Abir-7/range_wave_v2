@@ -9,4 +9,15 @@ router.get(
   auth(["mechanic"]),
   BidController.getMechanicBidHistory
 );
+router.get(
+  "/get_bid_list_of_a_service/:s_id",
+  auth(["user"]),
+  BidController.getBidListOfaService
+);
+
+router.get(
+  "/see_bid_details/:b_id",
+  auth(["user"]),
+  BidController.getBidDetails
+);
 export const BidRoute = router;

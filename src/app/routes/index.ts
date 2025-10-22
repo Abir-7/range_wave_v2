@@ -3,6 +3,7 @@ import { AuthRoute } from "./auth.route";
 import { ServiceRoute } from "./service.route";
 import { BidRoute } from "./bid.route";
 import { UserRoute } from "./user.route";
+import { RatingRoute } from "./rating.route";
 
 const router = Router();
 
@@ -11,6 +12,7 @@ const apiRoutes = [
   { path: "/service", route: ServiceRoute },
   { path: "/bid", route: BidRoute },
   { path: "/user", route: UserRoute },
+  { path: "/rating", route: RatingRoute },
 ];
 
 apiRoutes.forEach((route) => router.use(route.path, route.route));

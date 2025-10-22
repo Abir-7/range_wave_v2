@@ -1,3 +1,4 @@
+import { Repository } from "./helper.repo";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { db, schema } from "../db";
 import { Services } from "../db/schema/service_flow/service/service.schema";
@@ -72,13 +73,16 @@ const getAvailableServicesForMechanic = async (mechanicId: string) => {
         description: Services.description,
         scheduled_date: Services.scheduled_date,
         created_at: Services.created_at,
+        is_scheduled: ServiceProgress.is_scheduled,
+        coordinates: Services.coordinates,
+        //  address: Services.address,
       },
       average_rating:
         sql<number>`COALESCE(AVG(${RatingByMechanic.rating}), 0)`.as(
           "average_rating"
         ),
       user_profile_details: {
-        user_id: UserProfiles.user_id,
+        //  user_id: UserProfiles.user_id,
         full_name: UserProfiles.full_name,
         mobile: UserProfiles.mobile,
         image: UserProfiles.image,
@@ -86,9 +90,9 @@ const getAvailableServicesForMechanic = async (mechanicId: string) => {
       user_details: {
         id: Users.id,
         email: Users.email,
-        role: Users.role,
-        is_verified: Users.is_verified,
-        status: Users.status,
+        // role: Users.role,
+        // is_verified: Users.is_verified,
+        // status: Users.status,
       },
     })
     .from(Services)
@@ -113,10 +117,70 @@ const getAvailableServicesForMechanic = async (mechanicId: string) => {
         )
       )
     )
-    .groupBy(Services.id, UserProfiles.id, Users.id)
+    .groupBy(Services.id, UserProfiles.id, Users.id, ServiceProgress.id)
     .orderBy(desc(Services.created_at));
   console.log(data);
 
+  const raw = data.map((service) => ({
+    service: service.service,
+    user: {
+      ...service.user_details,
+      ...service.user_profile_details,
+      avg_rating: Number(Number(service.average_rating).toFixed(1)),
+    },
+  }));
+  const scheduled = raw.filter((x) => x.service.is_scheduled === true);
+  const not_scheduled = raw.filter((x) => x.service.is_scheduled === false);
+  return {
+    scheduled,
+    not_scheduled,
+  };
+};
+
+export const getServiceDetails = async (s_id: string) => {
+  const service = await db
+    .select({
+      service: {
+        id: Services.id,
+        issue: Services.issue,
+        description: Services.description,
+        coordinates: Services.coordinates,
+        created_at: Services.created_at,
+        user_id: Services.user_id,
+        address: Services.address,
+      },
+      user_profile: {
+        full_name: UserProfiles.full_name,
+        address: UserProfiles.address,
+        mobile: UserProfiles.mobile,
+        image: UserProfiles.image,
+      },
+    })
+    .from(Services)
+    .leftJoin(UserProfiles, eq(UserProfiles.user_id, Services.user_id))
+    .where(eq(Services.id, s_id))
+    .limit(1);
+
+  const avgResult = await Repository.getAvgRatingOfAUser(
+    service[0].service.user_id
+  );
+
+  return {
+    ...service[0],
+
+    rating: {
+      avg_rating: Number(Number(avgResult[0].avg_rating).toFixed(1)),
+      total: Number(avgResult[0].total_ratings),
+    },
+  };
+};
+
+//Other-====================
+
+const getServiceProgressById = async (sp_id: string) => {
+  const data = await db.query.ServiceProgress.findFirst({
+    where: eq(ServiceProgress.id, sp_id),
+  });
   return data;
 };
 
@@ -125,4 +189,6 @@ export const ServiceRepository = {
   makeServiceProgres,
   getRunningProgress,
   getAvailableServicesForMechanic,
+  getServiceProgressById,
+  getServiceDetails,
 };

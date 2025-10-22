@@ -9,6 +9,8 @@ import { UserCars } from "./user_carinfo.schema";
 import { MechanicWorkshop } from "./mechanics_workshop.schema";
 import { UserLocations } from "./user_location.schema";
 import { boolean } from "drizzle-orm/pg-core";
+import { RatingByUser } from "../rating/given_by_user/given_by_user.schema";
+import { RatingByMechanic } from "../rating/given_by_mechanic/given_by_mechanic.schema";
 
 // Optional: Gender enum
 export const genders = ["male", "female", "other"] as const;
@@ -48,5 +50,7 @@ export const UserProfilesRelations = relations(
     work_shop: one(MechanicWorkshop),
     location: one(UserLocations),
     payment_info: one(MechanicPaymentData),
+    rating_by_user: many(RatingByUser),
+    rating_by_mechanic: many(RatingByMechanic),
   })
 );

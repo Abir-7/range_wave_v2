@@ -47,8 +47,20 @@ const getAvailableServicesForMechanic = catchAsync(
   }
 );
 
+const getServiceDetails = catchAsync(async (req: Request, res: Response) => {
+  const result = await UserServiceReqService.getServiceDetails(req.params.s_id);
+
+  sendResponse(res, {
+    success: true,
+    message: "Service details fetched succesfully",
+    status_code: 200,
+    data: result,
+  });
+});
+
 export const UserServiceController = {
   makeServiceReq,
   getRunningProgress,
   getAvailableServicesForMechanic,
+  getServiceDetails,
 };

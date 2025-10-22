@@ -26,4 +26,31 @@ const getMechanicBidHistory = catchAsync(
   }
 );
 
-export const BidController = { makeBid, getMechanicBidHistory };
+const getBidListOfaService = catchAsync(async (req: Request, res: Response) => {
+  const result = await BidService.getBidListOfaService(req.params.s_id);
+
+  sendResponse(res, {
+    success: true,
+    message: "Bid list of a service fetched successfully",
+    status_code: 200,
+    data: result,
+  });
+});
+
+const getBidDetails = catchAsync(async (req: Request, res: Response) => {
+  const result = await BidService.getBidDetails(req.params.b_id);
+
+  sendResponse(res, {
+    success: true,
+    message: "Bid details fetched successfully",
+    status_code: 200,
+    data: result,
+  });
+});
+
+export const BidController = {
+  makeBid,
+  getMechanicBidHistory,
+  getBidListOfaService,
+  getBidDetails,
+};

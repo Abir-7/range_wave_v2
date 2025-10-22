@@ -33,6 +33,8 @@ const registerUser = async (
     image?: string;
   }
 ) => {
+  console.log(profileData);
+
   const { email, password, role } = userData;
 
   const user_email = email?.toLowerCase().trim();
