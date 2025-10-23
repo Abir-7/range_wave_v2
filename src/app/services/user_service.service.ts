@@ -1,5 +1,6 @@
-import { Repository } from "../repositories/helper.repo";
-import { ServiceRepository } from "../repositories/service.repo";
+import { TUserRole } from "../middleware/auth/auth.interface";
+import { Repository } from "../repositories/helper.repository";
+import { ServiceRepository } from "../repositories/user_service.repository";
 import { UserRepository } from "../repositories/user.repo";
 
 const makeServiceReq = async (data: any, user_id: string) => {
@@ -39,11 +40,20 @@ const makeServiceReq = async (data: any, user_id: string) => {
     };
   });
 };
-const getRunningProgress = async (user_id: string) => {
-  const getRunningProgress = await ServiceRepository.getRunningProgress(
-    user_id
-  );
-  return getRunningProgress;
+
+const getRunningProgress = async (user_id: string, user_role: TUserRole) => {
+  if (user_role === "user") {
+    const getRunningProgress = await ServiceRepository.getUsersRunningProgress(
+      user_id
+    );
+    return getRunningProgress;
+  }
+  if (user_role === "mechanic") {
+    const getRunningProgress =
+      await ServiceRepository.getMechanicsRunningProgress(user_id);
+    return getRunningProgress;
+  }
+  return {};
 };
 
 //--------------------------For mechanics
@@ -57,9 +67,16 @@ const getServiceDetails = async (s_id: string) => {
   return await ServiceRepository.getServiceDetails(s_id);
 };
 
+//============ common============
+
+const getRunningServiceDetails = async (s_id: string) => {
+  return await ServiceRepository.runningServiceDetails(s_id);
+};
+
 export const UserServiceReqService = {
   makeServiceReq,
   getRunningProgress,
   getAvailableServicesForMechanic,
   getServiceDetails,
+  getRunningServiceDetails,
 };

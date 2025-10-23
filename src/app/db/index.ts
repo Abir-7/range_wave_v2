@@ -41,6 +41,10 @@ import {
   ServiceProgressRelation,
 } from "./schema/service_flow/progress/service_progress.schema";
 import { Bids, BidsRelations } from "./schema/service_flow/bid/bid.schema";
+import {
+  Services,
+  ServicesRelations,
+} from "./schema/service_flow/service/service.schema";
 
 const pool = new Pool({
   connectionString: appConfig.database.dataBase_uri,
@@ -76,6 +80,8 @@ export const schema = {
   Payments,
   PaymentsRelations,
   // service
+  Services,
+  ServicesRelations,
   ServiceProgress,
   ServiceProgressRelation,
   //Bid

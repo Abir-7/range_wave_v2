@@ -1,15 +1,17 @@
 import { Router } from "express";
 import { AuthRoute } from "./auth.route";
-import { ServiceRoute } from "./service.route";
+import { ServiceRoute } from "./user_service.route";
 import { BidRoute } from "./bid.route";
 import { UserRoute } from "./user.route";
 import { RatingRoute } from "./rating.route";
+import { ServiceProgressRoute } from "./user_service_progress.route";
 
 const router = Router();
 
 const apiRoutes = [
   { path: "/auth", route: AuthRoute },
   { path: "/service", route: ServiceRoute },
+  { path: "/service", route: ServiceProgressRoute },
   { path: "/bid", route: BidRoute },
   { path: "/user", route: UserRoute },
   { path: "/rating", route: RatingRoute },

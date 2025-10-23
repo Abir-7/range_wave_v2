@@ -1,5 +1,5 @@
 import { IMechanicWorkshopPayload } from "../interface/user_workshop.interface";
-import { Repository } from "../repositories/helper.repo";
+import { Repository } from "../repositories/helper.repository";
 import { UserRepository } from "../repositories/user.repo";
 
 const updateMechanicsWorkshopData = async (

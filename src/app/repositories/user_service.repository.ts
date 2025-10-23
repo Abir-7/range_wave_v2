@@ -1,4 +1,4 @@
-import { Repository } from "./helper.repo";
+import { Repository } from "./helper.repository";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { db, schema } from "../db";
 import { Services } from "../db/schema/service_flow/service/service.schema";
@@ -28,7 +28,7 @@ const makeServiceProgres = async (
     .returning();
 };
 
-export const getRunningProgress = async (user_id: string) => {
+const getUsersRunningProgress = async (user_id: string) => {
   // Allowed running statuses
   const runningStatuses = [
     "FINDING",
@@ -40,25 +40,41 @@ export const getRunningProgress = async (user_id: string) => {
   // Query latest service with its progress
   const result = await db
     .select({
-      service_id: Services.id,
-      service_issue: Services.issue,
-      service_description: Services.description,
-      progress_id: ServiceProgress.id,
-      progress_status: ServiceProgress.service_status,
-      extra_issue: ServiceProgress.extra_issue,
-      extra_price: ServiceProgress.extra_price,
+      service_id: ServiceProgress.service_id,
       created_at: ServiceProgress.created_at,
+      updated_at: ServiceProgress.updated_at,
     })
-    .from(Services)
-    .leftJoin(ServiceProgress, eq(ServiceProgress.service_id, Services.id))
+    .from(ServiceProgress)
     .where(
       and(
-        eq(Services.user_id, user_id),
+        eq(ServiceProgress.user_id, user_id),
         inArray(ServiceProgress.service_status, runningStatuses)
       )
     )
+    .orderBy(desc(ServiceProgress.updated_at))
+    .limit(1);
+  return result[0] || null;
+};
 
-    .orderBy(desc(ServiceProgress.created_at))
+const getMechanicsRunningProgress = async (user_id: string) => {
+  // Allowed running statuses
+  const runningStatuses = ["ON_THE_WAY", "WORKING", "NEED_TO_PAY"] as const;
+
+  // Query latest service with its progress
+  const result = await db
+    .select({
+      service_id: ServiceProgress.service_id,
+      created_at: ServiceProgress.created_at,
+      updated_at: ServiceProgress.updated_at,
+    })
+    .from(ServiceProgress)
+    .where(
+      and(
+        eq(ServiceProgress.mechanic_id, user_id),
+        inArray(ServiceProgress.service_status, runningStatuses)
+      )
+    )
+    .orderBy(desc(ServiceProgress.updated_at))
     .limit(1);
   return result[0] || null;
 };
@@ -137,7 +153,7 @@ const getAvailableServicesForMechanic = async (mechanicId: string) => {
   };
 };
 
-export const getServiceDetails = async (s_id: string) => {
+const getServiceDetails = async (s_id: string) => {
   const service = await db
     .select({
       service: {
@@ -175,6 +191,110 @@ export const getServiceDetails = async (s_id: string) => {
   };
 };
 
+//================== common ======================
+
+const runningServiceDetails = async (s_id: string) => {
+  const data = await db.query.ServiceProgress.findFirst({
+    where: eq(ServiceProgress.service_id, s_id),
+    columns: {
+      extra_issue: true,
+      extra_price: true,
+      is_scheduled: true,
+      extra_issue_description: true,
+      service_status: true,
+    },
+    with: {
+      bid_data: {
+        columns: { id: true, price: true },
+        with: {
+          mechanic: {
+            columns: { full_name: true, image: true, mobile: true },
+            with: {
+              user: { columns: { email: true, role: true, id: true } },
+              work_shop: {
+                columns: { coordinates: true, location_name: true },
+              },
+            },
+          },
+        },
+      },
+
+      service_data: {
+        columns: {
+          id: true,
+          issue: true,
+          description: true,
+          scheduled_date: true,
+          coordinates: true,
+        },
+        with: {
+          user: {
+            columns: { full_name: true, image: true, mobile: true },
+            with: { user: { columns: { email: true, role: true, id: true } } },
+          },
+        },
+      },
+    },
+  });
+
+  if (!data) return null;
+
+  const mechanicId = data.bid_data?.mechanic.user?.id;
+  const userId = data.service_data?.user.user?.id;
+
+  const [mechanic_rating, user_rating] = await Promise.all([
+    mechanicId ? Repository.getAvgRatingOfAMechanic(mechanicId) : null,
+    userId ? Repository.getAvgRatingOfAUser(userId) : null,
+  ]);
+
+  const formatRating = (ratingArray: any) =>
+    ratingArray?.[0]
+      ? {
+          avg_rating:
+            Math.round(Number(ratingArray[0].avg_rating || 0) * 10) / 10,
+          total_ratings: Number(ratingArray[0].total_ratings) || 0,
+        }
+      : { avg_rating: 0, total_ratings: 0 };
+
+  return {
+    service_data: {
+      id: data.service_data?.id || null,
+      issue: data.service_data?.issue || null,
+      description: data.service_data?.description || null,
+      scheduled_date: data.service_data?.scheduled_date || null,
+      coordinates: data.service_data?.coordinates || null,
+      is_scheduled: data.is_scheduled,
+      service_status: data.service_status,
+      extra_issue: data.extra_issue,
+      extra_issue_description: data.extra_issue_description,
+      extra_price: Number(data.extra_price),
+    },
+    user_data: {
+      full_name: data.service_data?.user.full_name || null,
+      image: data.service_data?.user.image || null,
+      mobile: data.service_data?.user.mobile || null,
+      email: data.service_data?.user.user?.email || null,
+      role: data.service_data?.user.user?.role || null,
+      rating: formatRating(user_rating),
+    },
+    mechanic_data: {
+      full_name: data.bid_data?.mechanic.full_name || null,
+      image: data.bid_data?.mechanic.image || null,
+      mobile: data.bid_data?.mechanic.mobile || null,
+      email: data.bid_data?.mechanic.user?.email || null,
+      role: data.bid_data?.mechanic.user?.role || null,
+      work_shop_coordinates:
+        data.bid_data?.mechanic.work_shop?.coordinates || null,
+      work_shop_name: data.bid_data?.mechanic.work_shop?.location_name || null,
+      rating: formatRating(mechanic_rating),
+    },
+    bid_data: {
+      bid_id: data.bid_data?.id || null,
+      bid_price: Number(data.bid_data?.price) || null,
+    },
+  };
+};
+
 //Other-====================
 
 const getServiceProgressById = async (sp_id: string) => {
@@ -187,8 +307,10 @@ const getServiceProgressById = async (sp_id: string) => {
 export const ServiceRepository = {
   makeServiceReq,
   makeServiceProgres,
-  getRunningProgress,
+  getUsersRunningProgress,
+  getMechanicsRunningProgress,
   getAvailableServicesForMechanic,
   getServiceProgressById,
   getServiceDetails,
+  runningServiceDetails,
 };

@@ -1,4 +1,4 @@
-import { BidRepository } from "../repositories/bid.repo";
+import { BidRepository } from "../repositories/bid.repository";
 import { UserRepository } from "../repositories/user.repo";
 import { AppError } from "../utils/serverTools/AppError";
 

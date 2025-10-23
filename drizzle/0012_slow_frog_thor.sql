@@ -1,0 +1,1 @@
+ALTER TABLE "rating_by_user" DROP CONSTRAINT "rating_by_user_mechanic_id_unique";

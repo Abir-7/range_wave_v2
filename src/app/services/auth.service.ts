@@ -1,9 +1,9 @@
 import { decode } from "./../../../node_modules/zod/src/v4/classic/parse";
-import { AuthRepository } from "../repositories/auth.repo";
+
 import { AppError } from "../utils/serverTools/AppError";
 import getHashedPassword from "../utils/helper/getHashedPassword";
 
-import { Repository } from "../repositories/helper.repo";
+import { Repository } from "../repositories/helper.repository";
 import {
   IAuthData,
   IDecodedData,
@@ -21,6 +21,7 @@ import { jsonWebToken } from "../utils/jwt/jwt";
 import { appConfig } from "../config/appConfig";
 import { getRemainingMinutes } from "../utils/helper/getRemainingMitutes";
 import comparePassword from "../utils/helper/comparePassword";
+import { AuthRepository } from "../repositories/auth.repository";
 
 const registerUser = async (
   userData: { email: string; password: string; role: TUserRole },

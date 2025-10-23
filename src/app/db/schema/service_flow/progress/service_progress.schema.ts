@@ -11,15 +11,22 @@ import { boolean } from "drizzle-orm/pg-core";
 import { pgEnum } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { Payments } from "../../payment/payment.schema";
+import { ChatRooms } from "../../chat/room/room.schema";
 
-export const serviceStatusEnum = pgEnum("service_status", [
+const serviceStatusValues = [
   "FINDING",
   "ON_THE_WAY",
   "WORKING",
   "NEED_TO_PAY",
   "COMPLETED",
   "CANCELLED",
-]);
+] as const;
+
+// Create the PostgreSQL enum
+export const serviceStatusEnum = pgEnum("service_status", serviceStatusValues);
+
+// TypeScript type from values
+export type TServiceStatus = (typeof serviceStatusValues)[number];
 
 export const ServiceProgress = pgTable("service_progress", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -29,7 +36,9 @@ export const ServiceProgress = pgTable("service_progress", {
   service_id: uuid("service_id").references(() => Services.id, {
     onDelete: "cascade",
   }),
-
+  chat_id: uuid(" chat_id").references(() => ChatRooms.id, {
+    onDelete: "cascade",
+  }),
   user_id: uuid("user_id")
     .notNull()
     .references(() => UserProfiles.user_id),
@@ -40,6 +49,7 @@ export const ServiceProgress = pgTable("service_progress", {
   extra_price: numeric("extra_price", { precision: 12, scale: 2 }).default("0"),
   service_status: serviceStatusEnum("status").notNull().default("FINDING"),
   is_scheduled: boolean("is_scheduled").notNull().default(false),
+
   cancel_reason: varchar("cancel_reason", { length: 5255 }),
   ...timestamps,
 });
@@ -47,9 +57,17 @@ export const ServiceProgress = pgTable("service_progress", {
 export const ServiceProgressRelation = relations(
   ServiceProgress,
   ({ one }) => ({
+    bid_data: one(Bids, {
+      fields: [ServiceProgress.bid_id],
+      references: [Bids.id],
+    }),
     payment: one(Payments, {
       fields: [ServiceProgress.id],
       references: [Payments.service_progress_id],
+    }),
+    service_data: one(Services, {
+      fields: [ServiceProgress.service_id],
+      references: [Services.id],
     }),
     mechanic: one(UserProfiles, {
       fields: [ServiceProgress.mechanic_id],

@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { db } from "../db";
 import { RatingByMechanic } from "../db/schema/rating/given_by_mechanic/given_by_mechanic.schema";
-import { Repository } from "./helper.repo";
+import { Repository } from "./helper.repository";
 import { RatingByUser } from "../db/schema/rating/given_by_user/given_by_user.schema";
 
 const ratingGivenByMechanic = async (

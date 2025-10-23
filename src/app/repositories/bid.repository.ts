@@ -7,10 +7,9 @@ import { Users } from "../db/schema/user/user.schema";
 import { ServiceProgress } from "../db/schema/service_flow/progress/service_progress.schema";
 import { RatingByMechanic } from "../db/schema/rating/given_by_mechanic/given_by_mechanic.schema";
 import { sql } from "drizzle-orm";
-import { RatingByUser } from "../db/schema/rating/given_by_user/given_by_user.schema";
+
 import { MechanicWorkshop } from "../db/schema/user/mechanics_workshop.schema";
-import { Repository } from "./helper.repo";
-import { RatingRepository } from "./rating.repository";
+import { Repository } from "./helper.repository";
 
 const addBid = async (data: typeof Bids.$inferInsert) => {
   const [created_bid] = await db.insert(Bids).values(data).returning();
@@ -159,15 +158,20 @@ const getBidDetails = async (bid_id: string) => {
     },
   });
 
-  const avgRating = await Repository.getAvgRatingOfAMechanic(data!.mechanic_id);
+  const avgRating =
+    data && data.id
+      ? await Repository.getAvgRatingOfAMechanic(data!.mechanic_id)
+      : null;
 
-  return {
-    ...data,
-    rating: {
-      avg_rating: Number(Number(avgRating[0].avg_rating).toFixed(1)),
-      total_ratings: Number(avgRating[0].total_ratings),
-    },
-  };
+  return avgRating
+    ? {
+        ...data,
+        rating: {
+          avg_rating: Number(Number(avgRating[0].avg_rating).toFixed(1)),
+          total_ratings: Number(avgRating[0].total_ratings),
+        },
+      }
+    : {};
 };
 
 export const BidRepository = {

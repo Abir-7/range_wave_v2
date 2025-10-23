@@ -71,6 +71,34 @@
       "when": 1761119258883,
       "tag": "0009_curvy_xavin",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1761195847516,
+      "tag": "0010_shallow_scourge",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1761205260018,
+      "tag": "0011_nasty_mojo",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1761205497409,
+      "tag": "0012_slow_frog_thor",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1761212640005,
+      "tag": "0013_cute_sentry",
+      "breakpoints": true
     }
   ]
 }

@@ -47,7 +47,10 @@ export const UserProfilesRelations = relations(
     user: one(Users),
     services: many(Services),
     car_info: one(UserCars),
-    work_shop: one(MechanicWorkshop),
+    work_shop: one(MechanicWorkshop, {
+      fields: [UserProfiles.user_id],
+      references: [MechanicWorkshop.user_id],
+    }),
     location: one(UserLocations),
     payment_info: one(MechanicPaymentData),
     rating_by_user: many(RatingByUser),

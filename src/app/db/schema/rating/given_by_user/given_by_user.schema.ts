@@ -14,7 +14,6 @@ export const RatingByUser = pgTable("rating_by_user", {
 
   mechanic_id: uuid("mechanic_id")
     .notNull()
-    .unique()
     .references(() => UserProfiles.user_id, { onDelete: "set null" }),
 
   user_id: uuid("user_id")

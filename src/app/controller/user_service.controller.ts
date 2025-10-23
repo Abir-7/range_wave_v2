@@ -19,7 +19,8 @@ const makeServiceReq = catchAsync(async (req: Request, res: Response) => {
 });
 const getRunningProgress = catchAsync(async (req: Request, res: Response) => {
   const result = await UserServiceReqService.getRunningProgress(
-    req.user.user_id
+    req.user.user_id,
+    req.user.user_role
   );
 
   sendResponse(res, {
@@ -57,10 +58,25 @@ const getServiceDetails = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+//============ common=====
+const getRunningServiceDetails = catchAsync(
+  async (req: Request, res: Response) => {
+    const result = await UserServiceReqService.getRunningServiceDetails(
+      req.params.s_id
+    );
 
+    sendResponse(res, {
+      success: true,
+      message: "Running service details fetched succesfully",
+      status_code: 200,
+      data: result,
+    });
+  }
+);
 export const UserServiceController = {
   makeServiceReq,
   getRunningProgress,
   getAvailableServicesForMechanic,
   getServiceDetails,
+  getRunningServiceDetails,
 };

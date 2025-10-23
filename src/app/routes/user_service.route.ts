@@ -9,21 +9,26 @@ router.post(
   auth(["user"]),
   UserServiceController.makeServiceReq
 );
-router.get(
-  "/get_running_service",
-  auth(["user"]),
-  UserServiceController.getRunningProgress
-);
 
 router.get(
   "/get_available_service_for_bid",
   auth(["mechanic"]),
   UserServiceController.getAvailableServicesForMechanic
 );
+
+router.get(
+  "/get_single_running_service",
+  auth(["user", "mechanic"]),
+  UserServiceController.getRunningProgress
+);
+router.get(
+  "/get_running_service_details/:s_id",
+  auth(["user", "mechanic"]),
+  UserServiceController.getRunningServiceDetails
+);
 router.get(
   "/get_service_details/:s_id",
   auth(["mechanic"]),
   UserServiceController.getServiceDetails
 );
-
 export const ServiceRoute = router;

@@ -7,14 +7,18 @@ import { timestamps } from "../../helper/columns.helpers";
 import { varchar } from "drizzle-orm/pg-core";
 import { ServiceProgress } from "../service_flow/progress/service_progress.schema";
 
-export const paymentTypeEnum = pgEnum("payment_type_enum", [
-  "ONLINE",
-  "OFFLINE",
-]);
+const paymentTypeValues = ["online", "offline"] as const;
+
+// PostgreSQL enum
+export const paymentTypeEnum = pgEnum("payment_type_enum", paymentTypeValues);
+
+// TypeScript union type
+export type IPaymentType = (typeof paymentTypeValues)[number];
 
 export const paymentStatusEnum = pgEnum("payment_status_enum", [
-  "PAID",
-  "UNPAID",
+  "paid",
+  "unpaid",
+  "failed",
 ]);
 
 // Payments table

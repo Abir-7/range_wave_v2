@@ -1,6 +1,6 @@
 import { IRating } from "../interface/rating.interface";
 import { RatingRepository } from "../repositories/rating.repository";
-import { ServiceRepository } from "../repositories/service.repo";
+import { ServiceRepository } from "../repositories/user_service.repository";
 import { AppError } from "../utils/serverTools/AppError";
 
 const ratingGivenByMechanic = async (data: IRating, mechanic_id: string) => {
