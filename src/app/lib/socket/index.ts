@@ -7,6 +7,7 @@ import { logger } from "../../utils/serverTools/logger";
 import { registerSocketHandlers } from "./socketManager";
 
 let io: Server;
+
 const JWT_SECRET = appConfig.jwt.jwt_access_secret;
 
 export const initSocket = (server: http.Server) => {
