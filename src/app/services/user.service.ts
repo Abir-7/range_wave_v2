@@ -1,11 +1,14 @@
 import { IMechanicWorkshopPayload } from "../interface/user_workshop.interface";
 import { Repository } from "../repositories/helper.repository";
 import { UserRepository } from "../repositories/user.repo";
+import { checkNearbyWorkshops } from "../utils/helper/checkDistanse";
 
 const updateMechanicsWorkshopData = async (
   data: IMechanicWorkshopPayload,
   mechanic_id: string
 ) => {
+  await checkNearbyWorkshops(data.workshop.coordinates, mechanic_id);
+
   return await Repository.transaction(async (tx) => {
     const update_profile = await UserRepository.updateUserProfile(
       mechanic_id,
@@ -24,6 +27,7 @@ const updateMechanicsWorkshopData = async (
           data.workshop.coordinates[1].toString(),
         ],
       },
+      mechanic_id,
       tx
     );
     return {

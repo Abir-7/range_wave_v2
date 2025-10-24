@@ -58,13 +58,15 @@ const getMechanicsWorkshopData = async (mechanic_id: string) => {
 
 const update_workshop_data = async (
   data: typeof MechanicWorkshop.$inferInsert,
+  mechanic_id: string,
   tx?: NodePgDatabase<typeof schema>
 ) => {
   const client = tx ?? db;
 
   const [updated] = await client
-    .insert(MechanicWorkshop)
-    .values(data)
+    .update(MechanicWorkshop)
+    .set(data)
+    .where(eq(MechanicWorkshop.user_id, mechanic_id))
     .returning();
   return updated;
 };

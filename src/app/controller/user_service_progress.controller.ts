@@ -3,6 +3,7 @@ import catchAsync from "../utils/serverTools/catchAsync";
 
 import sendResponse from "../utils/serverTools/sendResponse";
 import { ServiceProgressService } from "../services/user_service_progress.service";
+import { TServiceStatus } from "../db/schema/service_flow/progress/service_progress.schema";
 
 const hireMechanic = catchAsync(async (req: Request, res: Response) => {
   const result = await ServiceProgressService.hireMechanic(
@@ -46,9 +47,27 @@ const changeServiveStatus = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+// ========== Common =============
+const getAllRunningServiceProgressOfUserOrMechanic = catchAsync(
+  async (req: Request, res: Response) => {
+    const result = await ServiceProgressService.getAllRunningServiceProgress(
+      req.user.user_id,
+      req.user.user_role,
+      req.query.service_status as TServiceStatus
+    );
+
+    sendResponse(res, {
+      success: true,
+      message: "Service Status changed successfully.",
+      status_code: 200,
+      data: result,
+    });
+  }
+);
 
 export const ServiceProgressController = {
   hireMechanic,
   changeServiveStatus,
   markAsComplete,
+  getAllRunningServiceProgressOfUserOrMechanic,
 };

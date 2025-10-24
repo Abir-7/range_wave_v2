@@ -1,5 +1,6 @@
 import { IPaymentType } from "../db/schema/payment/payment.schema";
 import { TServiceStatus } from "../db/schema/service_flow/progress/service_progress.schema";
+import { TUserRole } from "../middleware/auth/auth.interface";
 import { ChatRepository } from "../repositories/chat.repository";
 import { Repository } from "../repositories/helper.repository";
 import { PaymentRepository } from "../repositories/payment.repository";
@@ -94,8 +95,30 @@ const markAsComplete = async (s_id: string, mode: IPaymentType) => {
   }
 };
 
+const getAllRunningServiceProgress = async (
+  id: string,
+  role: TUserRole,
+  status: TServiceStatus
+) => {
+  if (role === "mechanic") {
+    return await ServiceProgressRepository.getMechanicsAllRunningServiceProgress(
+      status,
+      id
+    );
+  }
+  if (role === "user") {
+    return await ServiceProgressRepository.getUsersAllRunningServiceProgress(
+      status,
+      id
+    );
+  }
+
+  return [];
+};
+
 export const ServiceProgressService = {
   hireMechanic,
   changeServiceStatus,
   markAsComplete,
+  getAllRunningServiceProgress,
 };

@@ -43,6 +43,7 @@ const getUserRatingData = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+
 const getMechanicRatingData = catchAsync(
   async (req: Request, res: Response) => {
     const result = await RatingService.getMechanicRatingData(

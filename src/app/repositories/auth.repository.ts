@@ -7,6 +7,7 @@ import { db } from "../db";
 
 import { UserProfiles } from "../db/schema/user/user_profiles.schema";
 import { UserAuthentications } from "../db/schema/user/user_authentication.schema";
+import { MechanicWorkshop } from "../db/schema/user/mechanics_workshop.schema";
 
 const createUser = async (
   data: typeof Users.$inferInsert,
@@ -27,6 +28,19 @@ const createProfile = async (
     .values(data)
     .returning();
   return profile;
+};
+
+// workshop
+
+const createWorkshop = async (
+  data: typeof MechanicWorkshop.$inferInsert,
+  trx?: NodePgDatabase<typeof schema>
+) => {
+  const [workshop] = await (trx || db)
+    .insert(MechanicWorkshop)
+    .values(data)
+    .returning();
+  return workshop;
 };
 
 //---------Authentication
@@ -99,4 +113,5 @@ export const AuthRepository = {
   getAuthenticationByUserIdAndToken,
   getAuthenticationByUserId,
   setAuthenticationSuccess,
+  createWorkshop,
 };

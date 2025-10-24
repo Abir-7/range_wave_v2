@@ -28,57 +28,6 @@ const makeServiceProgres = async (
     .returning();
 };
 
-const getUsersRunningProgress = async (user_id: string) => {
-  // Allowed running statuses
-  const runningStatuses = [
-    "FINDING",
-    "ON_THE_WAY",
-    "WORKING",
-    "NEED_TO_PAY",
-  ] as const;
-
-  // Query latest service with its progress
-  const result = await db
-    .select({
-      service_id: ServiceProgress.service_id,
-      created_at: ServiceProgress.created_at,
-      updated_at: ServiceProgress.updated_at,
-    })
-    .from(ServiceProgress)
-    .where(
-      and(
-        eq(ServiceProgress.user_id, user_id),
-        inArray(ServiceProgress.service_status, runningStatuses)
-      )
-    )
-    .orderBy(desc(ServiceProgress.updated_at))
-    .limit(1);
-  return result[0] || null;
-};
-
-const getMechanicsRunningProgress = async (user_id: string) => {
-  // Allowed running statuses
-  const runningStatuses = ["ON_THE_WAY", "WORKING", "NEED_TO_PAY"] as const;
-
-  // Query latest service with its progress
-  const result = await db
-    .select({
-      service_id: ServiceProgress.service_id,
-      created_at: ServiceProgress.created_at,
-      updated_at: ServiceProgress.updated_at,
-    })
-    .from(ServiceProgress)
-    .where(
-      and(
-        eq(ServiceProgress.mechanic_id, user_id),
-        inArray(ServiceProgress.service_status, runningStatuses)
-      )
-    )
-    .orderBy(desc(ServiceProgress.updated_at))
-    .limit(1);
-  return result[0] || null;
-};
-
 //----------------------For mechanics------------------
 const getAvailableServicesForMechanic = async (mechanicId: string) => {
   const data = await db
@@ -307,8 +256,7 @@ const getServiceProgressById = async (sp_id: string) => {
 export const ServiceRepository = {
   makeServiceReq,
   makeServiceProgres,
-  getUsersRunningProgress,
-  getMechanicsRunningProgress,
+
   getAvailableServicesForMechanic,
   getServiceProgressById,
   getServiceDetails,

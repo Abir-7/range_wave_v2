@@ -17,19 +17,21 @@ const makeServiceReq = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
-const getRunningProgress = catchAsync(async (req: Request, res: Response) => {
-  const result = await UserServiceReqService.getRunningProgress(
-    req.user.user_id,
-    req.user.user_role
-  );
+const getLatestRunningService = catchAsync(
+  async (req: Request, res: Response) => {
+    const result = await UserServiceReqService.getLatestRunningService(
+      req.user.user_id,
+      req.user.user_role
+    );
 
-  sendResponse(res, {
-    success: true,
-    message: "Users running service fetched successfully",
-    status_code: 200,
-    data: result,
-  });
-});
+    sendResponse(res, {
+      success: true,
+      message: "Users running service fetched successfully",
+      status_code: 200,
+      data: result,
+    });
+  }
+);
 
 //--------------------------for mechanics----------
 
@@ -75,7 +77,7 @@ const getRunningServiceDetails = catchAsync(
 );
 export const UserServiceController = {
   makeServiceReq,
-  getRunningProgress,
+  getLatestRunningService,
   getAvailableServicesForMechanic,
   getServiceDetails,
   getRunningServiceDetails,

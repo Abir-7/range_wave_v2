@@ -19,7 +19,7 @@ router.get(
 router.get(
   "/get_single_running_service",
   auth(["user", "mechanic"]),
-  UserServiceController.getRunningProgress
+  UserServiceController.getLatestRunningService
 );
 router.get(
   "/get_running_service_details/:s_id",

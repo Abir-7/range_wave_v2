@@ -9,11 +9,12 @@ export const Messages = pgTable("messages", {
   room_id: uuid("room_id").notNull(),
   sender_id: uuid("sender_id")
     .notNull()
-    .references(() => UserProfiles.id, { onDelete: "cascade" }),
+    .references(() => UserProfiles.user_id, { onDelete: "cascade" }),
 
   message: text("message").notNull(),
   ...timestamps,
 });
+
 export const MessagesRelations = relations(Messages, ({ one }) => ({
   sender: one(UserProfiles, {
     fields: [Messages.sender_id],

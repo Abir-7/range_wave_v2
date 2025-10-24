@@ -8,22 +8,21 @@ export const MechanicWorkshop = pgTable("mechanic_workshops", {
 
   user_id: uuid("user_id")
     .notNull()
+    .unique()
     .references(() => UserProfiles.user_id, { onDelete: "cascade" }),
 
-  workshop_name: varchar("workshop_name", { length: 150 }).notNull(),
+  workshop_name: varchar("workshop_name", { length: 150 }),
 
-  start_time: varchar("start_time", { length: 5 }).notNull(), // "HH:mm"
-  end_time: varchar("end_time", { length: 5 }).notNull(), // "HH:mm"
+  start_time: varchar("start_time", { length: 5 }), // "HH:mm"
+  end_time: varchar("end_time", { length: 5 }), // "HH:mm"
 
-  services: jsonb("services").notNull(),
+  services: jsonb("services"),
   // ["engine repair", "oil change"]
 
-  location_name: varchar("location_name", { length: 150 }).notNull(),
+  location_name: varchar("location_name", { length: 150 }),
   place_id: varchar("place_id", { length: 255 }),
 
-  coordinates: numeric("coordinates", { precision: 10, scale: 6 })
-    .array()
-    .notNull(),
+  coordinates: numeric("coordinates", { precision: 10, scale: 6 }).array(),
   // Example: [90.4125, 23.8103] => [longitude, latitude]
 
   experiences: jsonb("experiences"),

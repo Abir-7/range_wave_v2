@@ -21,4 +21,10 @@ router.patch(
   ServiceProgressController.markAsComplete
 );
 
+router.get(
+  "/get_running_service_of_user_mechanic",
+  auth(["user"]),
+  ServiceProgressController.getAllRunningServiceProgressOfUserOrMechanic
+);
+
 export const ServiceProgressRoute = router;

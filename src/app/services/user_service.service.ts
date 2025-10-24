@@ -1,7 +1,7 @@
 import { TUserRole } from "../middleware/auth/auth.interface";
 import { Repository } from "../repositories/helper.repository";
 import { ServiceRepository } from "../repositories/user_service.repository";
-import { UserRepository } from "../repositories/user.repo";
+import { ServiceProgressRepository } from "../repositories/user_service_progress.repository";
 
 const makeServiceReq = async (data: any, user_id: string) => {
   return await Repository.transaction(async (tx) => {
@@ -41,16 +41,18 @@ const makeServiceReq = async (data: any, user_id: string) => {
   });
 };
 
-const getRunningProgress = async (user_id: string, user_role: TUserRole) => {
+const getLatestRunningService = async (
+  user_id: string,
+  user_role: TUserRole
+) => {
   if (user_role === "user") {
-    const getRunningProgress = await ServiceRepository.getUsersRunningProgress(
-      user_id
-    );
+    const getRunningProgress =
+      await ServiceProgressRepository.getUsersRunningProgress(user_id);
     return getRunningProgress;
   }
   if (user_role === "mechanic") {
     const getRunningProgress =
-      await ServiceRepository.getMechanicsRunningProgress(user_id);
+      await ServiceProgressRepository.getMechanicsRunningProgress(user_id);
     return getRunningProgress;
   }
   return {};
@@ -75,7 +77,7 @@ const getRunningServiceDetails = async (s_id: string) => {
 
 export const UserServiceReqService = {
   makeServiceReq,
-  getRunningProgress,
+  getLatestRunningService,
   getAvailableServicesForMechanic,
   getServiceDetails,
   getRunningServiceDetails,
