@@ -6,6 +6,7 @@ import { UserRoute } from "./user.route";
 import { RatingRoute } from "./rating.route";
 import { ServiceProgressRoute } from "./user_service_progress.route";
 import { ChatRoute } from "./chat.route";
+import { StripeRoute } from "./stripe.route";
 
 const router = Router();
 
@@ -17,6 +18,7 @@ const apiRoutes = [
   { path: "/user", route: UserRoute },
   { path: "/rating", route: RatingRoute },
   { path: "/chat", route: ChatRoute },
+  { path: "/stripe", route: StripeRoute },
 ];
 
 apiRoutes.forEach((route) => router.use(route.path, route.route));

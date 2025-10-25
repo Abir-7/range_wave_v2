@@ -4,7 +4,7 @@ import {
   TServiceStatus,
 } from "../db/schema/service_flow/progress/service_progress.schema";
 import { db, schema } from "../db";
-import { and, desc, eq, getTableColumns, inArray, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, or, sql } from "drizzle-orm";
 import { RatingByUser } from "../db/schema/rating/given_by_user/given_by_user.schema";
 import { RatingByMechanic } from "../db/schema/rating/given_by_mechanic/given_by_mechanic.schema";
 import { UserProfiles } from "../db/schema/user/user_profiles.schema";
@@ -14,17 +14,33 @@ import { Bids } from "../db/schema/service_flow/bid/bid.schema";
 
 const updateServiceProgress = async (
   data: Partial<typeof ServiceProgress.$inferInsert>,
-  service_id: string,
+  service_id: string | null,
+  service_progress_id: string | null,
   tx?: NodePgDatabase<typeof schema>
 ) => {
   const client = tx ?? db;
-  const [updated_data] = await client
+
+  const orConditions = [];
+
+  if (service_id) {
+    orConditions.push(eq(ServiceProgress.service_id, service_id));
+  }
+
+  if (service_progress_id) {
+    orConditions.push(eq(ServiceProgress.id, service_progress_id));
+  }
+
+  if (orConditions.length === 0) {
+    throw new Error("At least one identifier must be provided");
+  }
+
+  const [updated] = await client
     .update(ServiceProgress)
     .set(data)
-    .where(eq(ServiceProgress.service_id, service_id))
+    .where(or(...orConditions)) // <-- any one can match
     .returning();
 
-  return updated_data;
+  return updated;
 };
 
 const findServiceProgressData = async (s_id: string) => {

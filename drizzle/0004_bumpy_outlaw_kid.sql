@@ -1,1 +1,0 @@
-ALTER TABLE "user_payment_data" ALTER COLUMN "is_active" SET DEFAULT false;

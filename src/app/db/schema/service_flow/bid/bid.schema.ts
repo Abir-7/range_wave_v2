@@ -15,7 +15,7 @@ export const Bids = pgTable("bids", {
 
   service_id: uuid("service_id")
     .notNull()
-    .references(() => Services.id, { onDelete: "set null" }),
+    .references(() => Services.id, { onDelete: "cascade" }),
   mechanic_id: uuid("mechanic_id")
     .notNull()
     .references(() => UserProfiles.user_id, { onDelete: "set null" }),

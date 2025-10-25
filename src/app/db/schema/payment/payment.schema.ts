@@ -24,7 +24,7 @@ export const paymentStatusEnum = pgEnum("payment_status_enum", [
 // Payments table
 export const Payments = pgTable("payments", {
   id: uuid("id").defaultRandom().primaryKey(),
-  tx_id: text("tx_id").notNull().unique(),
+  tx_id: text("tx_id"),
   service_progress_id: uuid("service_progress_id")
     .notNull()
     .references(() => ServiceProgress.id),

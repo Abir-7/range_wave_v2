@@ -8,6 +8,7 @@ import { db } from "../db";
 import { UserProfiles } from "../db/schema/user/user_profiles.schema";
 import { UserAuthentications } from "../db/schema/user/user_authentication.schema";
 import { MechanicWorkshop } from "../db/schema/user/mechanics_workshop.schema";
+import { MechanicPaymentData } from "../db/schema/user/mechanic_payment_data.schema";
 
 const createUser = async (
   data: typeof Users.$inferInsert,
@@ -41,6 +42,20 @@ const createWorkshop = async (
     .values(data)
     .returning();
   return workshop;
+};
+
+// payment info
+
+const createMechanicPaymentInfo = async (
+  data: typeof MechanicPaymentData.$inferInsert,
+  trx: NodePgDatabase<typeof schema>
+) => {
+  const [payment_info] = await await (trx || db)
+    .insert(MechanicPaymentData)
+    .values(data)
+    .returning();
+
+  return payment_info;
 };
 
 //---------Authentication
@@ -114,4 +129,5 @@ export const AuthRepository = {
   getAuthenticationByUserId,
   setAuthenticationSuccess,
   createWorkshop,
+  createMechanicPaymentInfo,
 };

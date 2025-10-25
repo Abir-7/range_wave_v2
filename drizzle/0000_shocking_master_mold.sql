@@ -1,6 +1,7 @@
-CREATE TYPE "public"."payment_status_enum" AS ENUM('PAID', 'UNPAID');--> statement-breakpoint
-CREATE TYPE "public"."payment_type_enum" AS ENUM('ONLINE', 'OFFLINE');--> statement-breakpoint
+CREATE TYPE "public"."payment_status_enum" AS ENUM('paid', 'unpaid', 'failed');--> statement-breakpoint
+CREATE TYPE "public"."payment_type_enum" AS ENUM('online', 'offline');--> statement-breakpoint
 CREATE TYPE "public"."bid_status" AS ENUM('provided', 'declined');--> statement-breakpoint
+CREATE TYPE "public"."extra_work_accept_enum" AS ENUM('accepted', 'rejected', 'pending');--> statement-breakpoint
 CREATE TYPE "public"."service_status" AS ENUM('FINDING', 'ON_THE_WAY', 'WORKING', 'NEED_TO_PAY', 'COMPLETED', 'CANCELLED');--> statement-breakpoint
 CREATE TYPE "public"."auth_type" AS ENUM('email', 'forgot-password', 'resend', 'token');--> statement-breakpoint
 CREATE TYPE "public"."gender_enum" AS ENUM('male', 'female', 'other');--> statement-breakpoint
@@ -11,7 +12,7 @@ CREATE TABLE "messages" (
 	"room_id" uuid NOT NULL,
 	"sender_id" uuid NOT NULL,
 	"message" text NOT NULL,
-	"updated_at" timestamp,
+	"updated_at" timestamp DEFAULT now(),
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"deleted_at" timestamp
 );
@@ -21,22 +22,34 @@ CREATE TABLE "chat_rooms" (
 	"user_id" uuid NOT NULL,
 	"mechanic_id" uuid NOT NULL,
 	"last_message_id" uuid,
-	"updated_at" timestamp,
+	"updated_at" timestamp DEFAULT now(),
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"deleted_at" timestamp
 );
 --> statement-breakpoint
+CREATE TABLE "payments_for_workshop" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"tx_id" text,
+	"mechanic_id" uuid NOT NULL,
+	"total_amount" numeric(12, 2) NOT NULL,
+	"status" "payment_status_enum" NOT NULL,
+	"updated_at" timestamp DEFAULT now(),
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"deleted_at" timestamp,
+	CONSTRAINT "payments_for_workshop_tx_id_unique" UNIQUE("tx_id"),
+	CONSTRAINT "payments_for_workshop_mechanic_id_unique" UNIQUE("mechanic_id")
+);
+--> statement-breakpoint
 CREATE TABLE "payments" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"tx_id" text NOT NULL,
+	"tx_id" text,
 	"service_progress_id" uuid NOT NULL,
 	"status" "payment_status_enum" NOT NULL,
 	"payment_type" "payment_type_enum" NOT NULL,
 	"total_amount" numeric(12, 2) NOT NULL,
-	"updated_at" timestamp,
+	"updated_at" timestamp DEFAULT now(),
 	"created_at" timestamp DEFAULT now() NOT NULL,
-	"deleted_at" timestamp,
-	CONSTRAINT "payments_tx_id_unique" UNIQUE("tx_id")
+	"deleted_at" timestamp
 );
 --> statement-breakpoint
 CREATE TABLE "rating_by_mechanic" (
@@ -46,7 +59,7 @@ CREATE TABLE "rating_by_mechanic" (
 	"mechanic_id" uuid NOT NULL,
 	"user_id" uuid NOT NULL,
 	"service_progress_id" uuid NOT NULL,
-	"updated_at" timestamp,
+	"updated_at" timestamp DEFAULT now(),
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"deleted_at" timestamp
 );
@@ -58,7 +71,7 @@ CREATE TABLE "rating_by_user" (
 	"mechanic_id" uuid NOT NULL,
 	"user_id" uuid NOT NULL,
 	"service_progress_id" uuid NOT NULL,
-	"updated_at" timestamp,
+	"updated_at" timestamp DEFAULT now(),
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"deleted_at" timestamp
 );
@@ -68,8 +81,8 @@ CREATE TABLE "bids" (
 	"service_id" uuid NOT NULL,
 	"mechanic_id" uuid NOT NULL,
 	"price" numeric(20, 2) NOT NULL,
-	"status" "bid_status" DEFAULT 'provided' NOT NULL,
-	"updated_at" timestamp,
+	"status" "bid_status" NOT NULL,
+	"updated_at" timestamp DEFAULT now(),
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"deleted_at" timestamp
 );
@@ -78,17 +91,20 @@ CREATE TABLE "service_progress" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"bid_id" uuid,
 	"service_id" uuid,
-	"user_id" uuid NOT NULL,
+	"chat_id" uuid,
+	"user_id" uuid,
 	"mechanic_id" uuid,
-	"amount" numeric(12, 2) NOT NULL,
-	"issue" varchar,
-	"extra_amount" numeric(12, 2) NOT NULL,
+	"extra_issue" varchar,
+	"extra_issue_desc" varchar,
+	"extra_price" numeric(12, 2) DEFAULT '0',
 	"status" "service_status" DEFAULT 'FINDING' NOT NULL,
 	"is_scheduled" boolean DEFAULT false NOT NULL,
-	"cancel_reason" varchar(5255) NOT NULL,
-	"updated_at" timestamp,
+	"extra_work_accept_status" "extra_work_accept_enum" DEFAULT 'pending' NOT NULL,
+	"cancel_reason" varchar(5255),
+	"updated_at" timestamp DEFAULT now(),
 	"created_at" timestamp DEFAULT now() NOT NULL,
-	"deleted_at" timestamp
+	"deleted_at" timestamp,
+	CONSTRAINT "service_progress_service_id_unique" UNIQUE("service_id")
 );
 --> statement-breakpoint
 CREATE TABLE "services" (
@@ -97,7 +113,9 @@ CREATE TABLE "services" (
 	"issue" varchar(255) NOT NULL,
 	"description" text NOT NULL,
 	"scheduled_date" timestamp,
-	"updated_at" timestamp,
+	"address" text,
+	"coordinates" numeric(10, 6)[] NOT NULL,
+	"updated_at" timestamp DEFAULT now(),
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"deleted_at" timestamp
 );
@@ -105,26 +123,31 @@ CREATE TABLE "services" (
 CREATE TABLE "user_payment_data" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"user_profile_id" uuid NOT NULL,
-	"account_id" varchar(255) NOT NULL,
-	"is_active" boolean DEFAULT true NOT NULL,
-	"updated_at" timestamp,
+	"account_id" varchar(255),
+	"is_active" boolean DEFAULT false NOT NULL,
+	"updated_at" timestamp DEFAULT now(),
 	"created_at" timestamp DEFAULT now() NOT NULL,
-	"deleted_at" timestamp
+	"deleted_at" timestamp,
+	CONSTRAINT "user_payment_data_user_profile_id_unique" UNIQUE("user_profile_id")
 );
 --> statement-breakpoint
 CREATE TABLE "mechanic_workshops" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"user_profile_id" uuid NOT NULL,
-	"workshop_name" varchar(150) NOT NULL,
-	"working_hours" jsonb NOT NULL,
-	"services" jsonb NOT NULL,
-	"location_name" varchar(150) NOT NULL,
-	"place_id" varchar(255) NOT NULL,
-	"coordinates" numeric(10, 6)[] NOT NULL,
-	"experiences" jsonb NOT NULL,
-	"updated_at" timestamp,
+	"user_id" uuid NOT NULL,
+	"workshop_name" varchar(150),
+	"start_time" varchar(5),
+	"end_time" varchar(5),
+	"services" jsonb,
+	"location_name" varchar(150),
+	"place_id" varchar(255),
+	"coordinates" numeric(10, 6)[],
+	"experiences" jsonb,
+	"certificates" jsonb DEFAULT '[]'::jsonb,
+	"is_conflict" boolean DEFAULT false,
+	"updated_at" timestamp DEFAULT now(),
 	"created_at" timestamp DEFAULT now() NOT NULL,
-	"deleted_at" timestamp
+	"deleted_at" timestamp,
+	CONSTRAINT "mechanic_workshops_user_id_unique" UNIQUE("user_id")
 );
 --> statement-breakpoint
 CREATE TABLE "user_authentications" (
@@ -135,27 +158,27 @@ CREATE TABLE "user_authentications" (
 	"type" "auth_type" NOT NULL,
 	"expire_date" timestamp NOT NULL,
 	"is_success" boolean DEFAULT false NOT NULL,
-	"updated_at" timestamp,
+	"updated_at" timestamp DEFAULT now(),
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"deleted_at" timestamp
 );
 --> statement-breakpoint
 CREATE TABLE "user_cars" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"user_profile_id" uuid NOT NULL,
+	"user_id" uuid NOT NULL,
 	"car_name" varchar(100) NOT NULL,
 	"car_model" varchar(100) NOT NULL,
 	"vin_code" varchar(100) NOT NULL,
 	"license_plate" varchar(50) NOT NULL,
 	"tag_number" varchar(50) NOT NULL,
-	"updated_at" timestamp,
+	"updated_at" timestamp DEFAULT now(),
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"deleted_at" timestamp
 );
 --> statement-breakpoint
 CREATE TABLE "user_locations" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"user_profile_id" uuid NOT NULL,
+	"user_id" uuid NOT NULL,
 	"apartment_no" varchar(50) NOT NULL,
 	"road_no" varchar(50) NOT NULL,
 	"state" varchar(100) NOT NULL,
@@ -163,7 +186,7 @@ CREATE TABLE "user_locations" (
 	"zip_code" varchar(20) NOT NULL,
 	"address" text NOT NULL,
 	"country" varchar(100) NOT NULL,
-	"updated_at" timestamp,
+	"updated_at" timestamp DEFAULT now(),
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"deleted_at" timestamp
 );
@@ -177,7 +200,8 @@ CREATE TABLE "user_profiles" (
 	"address" text,
 	"gender" "gender_enum",
 	"image" text,
-	"updated_at" timestamp,
+	"is_profile_completed" boolean DEFAULT false NOT NULL,
+	"updated_at" timestamp DEFAULT now(),
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"deleted_at" timestamp,
 	CONSTRAINT "user_profiles_user_id_unique" UNIQUE("user_id"),
@@ -193,16 +217,17 @@ CREATE TABLE "users" (
 	"is_verified" boolean DEFAULT false NOT NULL,
 	"status" "user_status" DEFAULT 'pending_verification' NOT NULL,
 	"need_to_reset_password" boolean DEFAULT false NOT NULL,
-	"updated_at" timestamp,
+	"updated_at" timestamp DEFAULT now(),
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"deleted_at" timestamp,
 	CONSTRAINT "users_email_unique" UNIQUE("email")
 );
 --> statement-breakpoint
-ALTER TABLE "messages" ADD CONSTRAINT "messages_sender_id_user_profiles_id_fk" FOREIGN KEY ("sender_id") REFERENCES "public"."user_profiles"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "messages" ADD CONSTRAINT "messages_sender_id_user_profiles_user_id_fk" FOREIGN KEY ("sender_id") REFERENCES "public"."user_profiles"("user_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "chat_rooms" ADD CONSTRAINT "chat_rooms_user_id_user_profiles_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user_profiles"("user_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "chat_rooms" ADD CONSTRAINT "chat_rooms_mechanic_id_user_profiles_user_id_fk" FOREIGN KEY ("mechanic_id") REFERENCES "public"."user_profiles"("user_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "chat_rooms" ADD CONSTRAINT "chat_rooms_last_message_id_messages_id_fk" FOREIGN KEY ("last_message_id") REFERENCES "public"."messages"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "payments_for_workshop" ADD CONSTRAINT "payments_for_workshop_mechanic_id_mechanic_workshops_user_id_fk" FOREIGN KEY ("mechanic_id") REFERENCES "public"."mechanic_workshops"("user_id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "payments" ADD CONSTRAINT "payments_service_progress_id_service_progress_id_fk" FOREIGN KEY ("service_progress_id") REFERENCES "public"."service_progress"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "rating_by_mechanic" ADD CONSTRAINT "rating_by_mechanic_mechanic_id_user_profiles_user_id_fk" FOREIGN KEY ("mechanic_id") REFERENCES "public"."user_profiles"("user_id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "rating_by_mechanic" ADD CONSTRAINT "rating_by_mechanic_user_id_user_profiles_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user_profiles"("user_id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
@@ -210,17 +235,17 @@ ALTER TABLE "rating_by_mechanic" ADD CONSTRAINT "rating_by_mechanic_service_prog
 ALTER TABLE "rating_by_user" ADD CONSTRAINT "rating_by_user_mechanic_id_user_profiles_user_id_fk" FOREIGN KEY ("mechanic_id") REFERENCES "public"."user_profiles"("user_id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "rating_by_user" ADD CONSTRAINT "rating_by_user_user_id_user_profiles_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user_profiles"("user_id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "rating_by_user" ADD CONSTRAINT "rating_by_user_service_progress_id_service_progress_id_fk" FOREIGN KEY ("service_progress_id") REFERENCES "public"."service_progress"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "bids" ADD CONSTRAINT "bids_service_id_services_id_fk" FOREIGN KEY ("service_id") REFERENCES "public"."services"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "bids" ADD CONSTRAINT "bids_service_id_services_id_fk" FOREIGN KEY ("service_id") REFERENCES "public"."services"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "bids" ADD CONSTRAINT "bids_mechanic_id_user_profiles_user_id_fk" FOREIGN KEY ("mechanic_id") REFERENCES "public"."user_profiles"("user_id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "service_progress" ADD CONSTRAINT "service_progress_bid_id_bids_id_fk" FOREIGN KEY ("bid_id") REFERENCES "public"."bids"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "service_progress" ADD CONSTRAINT "service_progress_bid_id_bids_id_fk" FOREIGN KEY ("bid_id") REFERENCES "public"."bids"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "service_progress" ADD CONSTRAINT "service_progress_service_id_services_id_fk" FOREIGN KEY ("service_id") REFERENCES "public"."services"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "service_progress" ADD CONSTRAINT "service_progress_user_id_user_profiles_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user_profiles"("user_id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "service_progress" ADD CONSTRAINT "service_progress_mechanic_id_user_profiles_user_id_fk" FOREIGN KEY ("mechanic_id") REFERENCES "public"."user_profiles"("user_id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "service_progress" ADD CONSTRAINT "service_progress_chat_id_chat_rooms_id_fk" FOREIGN KEY ("chat_id") REFERENCES "public"."chat_rooms"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "service_progress" ADD CONSTRAINT "service_progress_user_id_user_profiles_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user_profiles"("user_id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "service_progress" ADD CONSTRAINT "service_progress_mechanic_id_user_profiles_user_id_fk" FOREIGN KEY ("mechanic_id") REFERENCES "public"."user_profiles"("user_id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "services" ADD CONSTRAINT "services_user_id_user_profiles_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user_profiles"("user_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "user_payment_data" ADD CONSTRAINT "user_payment_data_user_profile_id_user_profiles_id_fk" FOREIGN KEY ("user_profile_id") REFERENCES "public"."user_profiles"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "mechanic_workshops" ADD CONSTRAINT "mechanic_workshops_user_profile_id_user_profiles_id_fk" FOREIGN KEY ("user_profile_id") REFERENCES "public"."user_profiles"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "user_payment_data" ADD CONSTRAINT "user_payment_data_user_profile_id_user_profiles_user_id_fk" FOREIGN KEY ("user_profile_id") REFERENCES "public"."user_profiles"("user_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "mechanic_workshops" ADD CONSTRAINT "mechanic_workshops_user_id_user_profiles_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user_profiles"("user_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "user_authentications" ADD CONSTRAINT "user_authentications_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "user_cars" ADD CONSTRAINT "user_cars_user_profile_id_user_profiles_id_fk" FOREIGN KEY ("user_profile_id") REFERENCES "public"."user_profiles"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "user_locations" ADD CONSTRAINT "user_locations_user_profile_id_user_profiles_id_fk" FOREIGN KEY ("user_profile_id") REFERENCES "public"."user_profiles"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "user_profiles" ADD CONSTRAINT "user_profiles_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-CREATE UNIQUE INDEX "unique_user_mechanic" ON "chat_rooms" USING btree ("user_id","mechanic_id");
+ALTER TABLE "user_cars" ADD CONSTRAINT "user_cars_user_id_user_profiles_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user_profiles"("user_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "user_locations" ADD CONSTRAINT "user_locations_user_id_user_profiles_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user_profiles"("user_id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "user_profiles" ADD CONSTRAINT "user_profiles_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;

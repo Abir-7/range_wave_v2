@@ -1,11 +1,15 @@
 import { IPaymentType } from "../db/schema/payment/payment.schema";
-import { TServiceStatus } from "../db/schema/service_flow/progress/service_progress.schema";
+import {
+  TExtraWorkAcceptStatus,
+  TServiceStatus,
+} from "../db/schema/service_flow/progress/service_progress.schema";
 import { TUserRole } from "../middleware/auth/auth.interface";
 import { ChatRepository } from "../repositories/chat.repository";
 import { Repository } from "../repositories/helper.repository";
 import { PaymentRepository } from "../repositories/payment.repository";
 import { ServiceProgressRepository } from "../repositories/user_service_progress.repository";
 import { AppError } from "../utils/serverTools/AppError";
+import { StripeService } from "./stripe.service";
 
 const hireMechanic = async (
   data: {
@@ -26,10 +30,13 @@ const hireMechanic = async (
   }
   const { bid_id, mechanic_id, service_id } = data;
   return await Repository.transaction(async (tx) => {
-    await ChatRepository.makeNewChatRoom({
-      mechanic_id: data.mechanic_id,
-      user_id,
-    });
+    await ChatRepository.makeNewChatRoom(
+      {
+        mechanic_id: data.mechanic_id,
+        user_id,
+      },
+      tx
+    );
     const updated_data = await ServiceProgressRepository.updateServiceProgress(
       {
         bid_id,
@@ -37,18 +44,13 @@ const hireMechanic = async (
         service_status: "ON_THE_WAY",
         updated_at: new Date(),
       },
-      service_id
+      service_id,
+      null,
+      tx
     );
 
     return updated_data;
   });
-};
-
-const changeServiceStatus = async (s_id: string, status: TServiceStatus) => {
-  return await ServiceProgressRepository.updateServiceProgress(
-    { service_status: status },
-    s_id
-  );
 };
 
 const markAsComplete = async (s_id: string, mode: IPaymentType) => {
@@ -66,10 +68,13 @@ const markAsComplete = async (s_id: string, mode: IPaymentType) => {
   if (saved_payment && saved_payment.status === "paid") {
     throw new AppError("Already paid for this service", 400);
   }
+
   const total_amount =
-    Number(service_progress_data.extra_price) +
-    Number(service_progress_data.bid_data?.price ?? 0);
+    service_progress_data.extra_work_accept_status === "accepted"
+      ? Number(service_progress_data.extra_price)
+      : 0 + Number(service_progress_data.bid_data?.price ?? 0);
   console.log(mode);
+
   if (mode === "offline") {
     const payment_data = {
       tx_id: `tx-${new Date()}`,
@@ -87,11 +92,25 @@ const markAsComplete = async (s_id: string, mode: IPaymentType) => {
 
       await ServiceProgressRepository.updateServiceProgress(
         { service_status: "COMPLETED" },
-        s_id
+        s_id,
+        null
       );
 
-      return saved_payment;
+      return { payment_id: saved_payment.id, client_secret: null };
     });
+  }
+
+  if (mode === "online") {
+    const data = await StripeService.createPaymentIntentForUser({
+      payment_type: "online",
+      service_progress_id: service_progress_data.id,
+      total_amount: String(total_amount),
+      type: "service_complete",
+      user_id: service_progress_data.user_id!,
+    });
+
+    // return { paymentIntent: data.client_secret };
+    return data;
   }
 };
 
@@ -116,9 +135,46 @@ const getAllRunningServiceProgress = async (
   return [];
 };
 
+const acceptOrRejectExtraWork = async (
+  status: TExtraWorkAcceptStatus,
+  service_id: string
+) => {
+  return ServiceProgressRepository.updateServiceProgress(
+    { extra_work_accept_status: status },
+    service_id,
+    null
+  );
+};
+
+// mechanic
+const addExtraWorkData = async (
+  data: {
+    extra_issue: string;
+    extra_issue_description: string;
+    extra_price: string;
+  },
+  service_id: string
+) => {
+  const updated_data = await ServiceProgressRepository.updateServiceProgress(
+    data,
+    service_id,
+    null
+  );
+  return updated_data;
+};
+const changeServiceStatus = async (s_id: string, status: TServiceStatus) => {
+  return await ServiceProgressRepository.updateServiceProgress(
+    { service_status: status },
+    s_id,
+    null
+  );
+};
+
 export const ServiceProgressService = {
   hireMechanic,
   changeServiceStatus,
   markAsComplete,
   getAllRunningServiceProgress,
+  addExtraWorkData,
+  acceptOrRejectExtraWork,
 };

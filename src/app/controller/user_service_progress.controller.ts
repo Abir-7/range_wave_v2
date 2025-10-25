@@ -33,6 +33,22 @@ const markAsComplete = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const acceptOrRejectExtraWork = catchAsync(
+  async (req: Request, res: Response) => {
+    const result = await ServiceProgressService.acceptOrRejectExtraWork(
+      req.body.status,
+      req.params.s_id
+    );
+
+    sendResponse(res, {
+      success: true,
+      message: "Service Status changed successfully.",
+      status_code: 200,
+      data: result,
+    });
+  }
+);
+
 // ====== mechanic =======
 const changeServiveStatus = catchAsync(async (req: Request, res: Response) => {
   const result = await ServiceProgressService.changeServiceStatus(
@@ -47,6 +63,21 @@ const changeServiveStatus = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+
+const addExtraWorkData = catchAsync(async (req: Request, res: Response) => {
+  const result = await ServiceProgressService.addExtraWorkData(
+    req.body,
+    req.params.s_id
+  );
+
+  sendResponse(res, {
+    success: true,
+    message: "Service Status changed successfully.",
+    status_code: 200,
+    data: result,
+  });
+});
+
 // ========== Common =============
 const getAllRunningServiceProgressOfUserOrMechanic = catchAsync(
   async (req: Request, res: Response) => {
@@ -70,4 +101,6 @@ export const ServiceProgressController = {
   changeServiveStatus,
   markAsComplete,
   getAllRunningServiceProgressOfUserOrMechanic,
+  addExtraWorkData,
+  acceptOrRejectExtraWork,
 };

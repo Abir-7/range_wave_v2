@@ -1,5 +1,5 @@
 {
-  "id": "83602cd2-aa16-4296-b68c-f12ac879c065",
+  "id": "6ac84de1-0bc4-40ac-80bd-0ba7de81bdc8",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -37,7 +37,8 @@
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "default": "now()"
         },
         "created_at": {
           "name": "created_at",
@@ -55,15 +56,15 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "messages_sender_id_user_profiles_id_fk": {
-          "name": "messages_sender_id_user_profiles_id_fk",
+        "messages_sender_id_user_profiles_user_id_fk": {
+          "name": "messages_sender_id_user_profiles_user_id_fk",
           "tableFrom": "messages",
           "tableTo": "user_profiles",
           "columnsFrom": [
             "sender_id"
           ],
           "columnsTo": [
-            "id"
+            "user_id"
           ],
           "onDelete": "cascade",
           "onUpdate": "no action"
@@ -108,7 +109,8 @@
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "default": "now()"
         },
         "created_at": {
           "name": "created_at",
@@ -124,29 +126,7 @@
           "notNull": false
         }
       },
-      "indexes": {
-        "unique_user_mechanic": {
-          "name": "unique_user_mechanic",
-          "columns": [
-            {
-              "expression": "user_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "mechanic_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
+      "indexes": {},
       "foreignKeys": {
         "chat_rooms_user_id_user_profiles_user_id_fk": {
           "name": "chat_rooms_user_id_user_profiles_user_id_fk",
@@ -194,6 +174,100 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.payments_for_workshop": {
+      "name": "payments_for_workshop",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "tx_id": {
+          "name": "tx_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "mechanic_id": {
+          "name": "mechanic_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "total_amount": {
+          "name": "total_amount",
+          "type": "numeric(12, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "payment_status_enum",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "payments_for_workshop_mechanic_id_mechanic_workshops_user_id_fk": {
+          "name": "payments_for_workshop_mechanic_id_mechanic_workshops_user_id_fk",
+          "tableFrom": "payments_for_workshop",
+          "tableTo": "mechanic_workshops",
+          "columnsFrom": [
+            "mechanic_id"
+          ],
+          "columnsTo": [
+            "user_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "payments_for_workshop_tx_id_unique": {
+          "name": "payments_for_workshop_tx_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "tx_id"
+          ]
+        },
+        "payments_for_workshop_mechanic_id_unique": {
+          "name": "payments_for_workshop_mechanic_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "mechanic_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.payments": {
       "name": "payments",
       "schema": "",
@@ -209,7 +283,7 @@
           "name": "tx_id",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "service_progress_id": {
           "name": "service_progress_id",
@@ -241,7 +315,8 @@
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "default": "now()"
         },
         "created_at": {
           "name": "created_at",
@@ -274,15 +349,7 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "payments_tx_id_unique": {
-          "name": "payments_tx_id_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "tx_id"
-          ]
-        }
-      },
+      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -332,7 +399,8 @@
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "default": "now()"
         },
         "created_at": {
           "name": "created_at",
@@ -441,7 +509,8 @@
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "default": "now()"
         },
         "created_at": {
           "name": "created_at",
@@ -539,14 +608,14 @@
           "type": "bid_status",
           "typeSchema": "public",
           "primaryKey": false,
-          "notNull": true,
-          "default": "'provided'"
+          "notNull": true
         },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "default": "now()"
         },
         "created_at": {
           "name": "created_at",
@@ -574,7 +643,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "set null",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         },
         "bids_mechanic_id_user_profiles_user_id_fk": {
@@ -620,11 +689,17 @@
           "primaryKey": false,
           "notNull": false
         },
+        "chat_id": {
+          "name": "chat_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
         "user_id": {
           "name": "user_id",
           "type": "uuid",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "mechanic_id": {
           "name": "mechanic_id",
@@ -632,23 +707,24 @@
           "primaryKey": false,
           "notNull": false
         },
-        "amount": {
-          "name": "amount",
-          "type": "numeric(12, 2)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "issue": {
-          "name": "issue",
+        "extra_issue": {
+          "name": "extra_issue",
           "type": "varchar",
           "primaryKey": false,
           "notNull": false
         },
-        "extra_amount": {
-          "name": "extra_amount",
+        "extra_issue_desc": {
+          "name": "extra_issue_desc",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "extra_price": {
+          "name": "extra_price",
           "type": "numeric(12, 2)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false,
+          "default": "'0'"
         },
         "status": {
           "name": "status",
@@ -665,17 +741,26 @@
           "notNull": true,
           "default": false
         },
+        "extra_work_accept_status": {
+          "name": "extra_work_accept_status",
+          "type": "extra_work_accept_enum",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'pending'"
+        },
         "cancel_reason": {
           "name": "cancel_reason",
           "type": "varchar(5255)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "default": "now()"
         },
         "created_at": {
           "name": "created_at",
@@ -703,7 +788,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "set null",
           "onUpdate": "no action"
         },
         "service_progress_service_id_services_id_fk": {
@@ -712,6 +797,19 @@
           "tableTo": "services",
           "columnsFrom": [
             "service_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "service_progress_chat_id_chat_rooms_id_fk": {
+          "name": "service_progress_chat_id_chat_rooms_id_fk",
+          "tableFrom": "service_progress",
+          "tableTo": "chat_rooms",
+          "columnsFrom": [
+            "chat_id"
           ],
           "columnsTo": [
             "id"
@@ -729,7 +827,7 @@
           "columnsTo": [
             "user_id"
           ],
-          "onDelete": "no action",
+          "onDelete": "set null",
           "onUpdate": "no action"
         },
         "service_progress_mechanic_id_user_profiles_user_id_fk": {
@@ -742,12 +840,20 @@
           "columnsTo": [
             "user_id"
           ],
-          "onDelete": "no action",
+          "onDelete": "set null",
           "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "service_progress_service_id_unique": {
+          "name": "service_progress_service_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "service_id"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -787,11 +893,24 @@
           "primaryKey": false,
           "notNull": false
         },
+        "address": {
+          "name": "address",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "coordinates": {
+          "name": "coordinates",
+          "type": "numeric(10, 6)[]",
+          "primaryKey": false,
+          "notNull": true
+        },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "default": "now()"
         },
         "created_at": {
           "name": "created_at",
@@ -850,20 +969,21 @@
           "name": "account_id",
           "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "is_active": {
           "name": "is_active",
           "type": "boolean",
           "primaryKey": false,
           "notNull": true,
-          "default": true
+          "default": false
         },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "default": "now()"
         },
         "created_at": {
           "name": "created_at",
@@ -881,22 +1001,30 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "user_payment_data_user_profile_id_user_profiles_id_fk": {
-          "name": "user_payment_data_user_profile_id_user_profiles_id_fk",
+        "user_payment_data_user_profile_id_user_profiles_user_id_fk": {
+          "name": "user_payment_data_user_profile_id_user_profiles_user_id_fk",
           "tableFrom": "user_payment_data",
           "tableTo": "user_profiles",
           "columnsFrom": [
             "user_profile_id"
           ],
           "columnsTo": [
-            "id"
+            "user_id"
           ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "user_payment_data_user_profile_id_unique": {
+          "name": "user_payment_data_user_profile_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "user_profile_id"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -912,8 +1040,8 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "user_profile_id": {
-          "name": "user_profile_id",
+        "user_id": {
+          "name": "user_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
@@ -922,49 +1050,70 @@
           "name": "workshop_name",
           "type": "varchar(150)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
-        "working_hours": {
-          "name": "working_hours",
-          "type": "jsonb",
+        "start_time": {
+          "name": "start_time",
+          "type": "varchar(5)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
+        },
+        "end_time": {
+          "name": "end_time",
+          "type": "varchar(5)",
+          "primaryKey": false,
+          "notNull": false
         },
         "services": {
           "name": "services",
           "type": "jsonb",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "location_name": {
           "name": "location_name",
           "type": "varchar(150)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "place_id": {
           "name": "place_id",
           "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "coordinates": {
           "name": "coordinates",
           "type": "numeric(10, 6)[]",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "experiences": {
           "name": "experiences",
           "type": "jsonb",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
+        },
+        "certificates": {
+          "name": "certificates",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'[]'::jsonb"
+        },
+        "is_conflict": {
+          "name": "is_conflict",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
         },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "default": "now()"
         },
         "created_at": {
           "name": "created_at",
@@ -982,22 +1131,30 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "mechanic_workshops_user_profile_id_user_profiles_id_fk": {
-          "name": "mechanic_workshops_user_profile_id_user_profiles_id_fk",
+        "mechanic_workshops_user_id_user_profiles_user_id_fk": {
+          "name": "mechanic_workshops_user_id_user_profiles_user_id_fk",
           "tableFrom": "mechanic_workshops",
           "tableTo": "user_profiles",
           "columnsFrom": [
-            "user_profile_id"
+            "user_id"
           ],
           "columnsTo": [
-            "id"
+            "user_id"
           ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "mechanic_workshops_user_id_unique": {
+          "name": "mechanic_workshops_user_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "user_id"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -1055,7 +1212,8 @@
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "default": "now()"
         },
         "created_at": {
           "name": "created_at",
@@ -1104,8 +1262,8 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "user_profile_id": {
-          "name": "user_profile_id",
+        "user_id": {
+          "name": "user_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
@@ -1144,7 +1302,8 @@
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "default": "now()"
         },
         "created_at": {
           "name": "created_at",
@@ -1162,15 +1321,15 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "user_cars_user_profile_id_user_profiles_id_fk": {
-          "name": "user_cars_user_profile_id_user_profiles_id_fk",
+        "user_cars_user_id_user_profiles_user_id_fk": {
+          "name": "user_cars_user_id_user_profiles_user_id_fk",
           "tableFrom": "user_cars",
           "tableTo": "user_profiles",
           "columnsFrom": [
-            "user_profile_id"
+            "user_id"
           ],
           "columnsTo": [
-            "id"
+            "user_id"
           ],
           "onDelete": "cascade",
           "onUpdate": "no action"
@@ -1193,8 +1352,8 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "user_profile_id": {
-          "name": "user_profile_id",
+        "user_id": {
+          "name": "user_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
@@ -1245,7 +1404,8 @@
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "default": "now()"
         },
         "created_at": {
           "name": "created_at",
@@ -1263,15 +1423,15 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "user_locations_user_profile_id_user_profiles_id_fk": {
-          "name": "user_locations_user_profile_id_user_profiles_id_fk",
+        "user_locations_user_id_user_profiles_user_id_fk": {
+          "name": "user_locations_user_id_user_profiles_user_id_fk",
           "tableFrom": "user_locations",
           "tableTo": "user_profiles",
           "columnsFrom": [
-            "user_profile_id"
+            "user_id"
           ],
           "columnsTo": [
-            "id"
+            "user_id"
           ],
           "onDelete": "cascade",
           "onUpdate": "no action"
@@ -1337,11 +1497,19 @@
           "primaryKey": false,
           "notNull": false
         },
+        "is_profile_completed": {
+          "name": "is_profile_completed",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "default": "now()"
         },
         "created_at": {
           "name": "created_at",
@@ -1458,7 +1626,8 @@
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "default": "now()"
         },
         "created_at": {
           "name": "created_at",
@@ -1496,16 +1665,17 @@
       "name": "payment_status_enum",
       "schema": "public",
       "values": [
-        "PAID",
-        "UNPAID"
+        "paid",
+        "unpaid",
+        "failed"
       ]
     },
     "public.payment_type_enum": {
       "name": "payment_type_enum",
       "schema": "public",
       "values": [
-        "ONLINE",
-        "OFFLINE"
+        "online",
+        "offline"
       ]
     },
     "public.bid_status": {
@@ -1514,6 +1684,15 @@
       "values": [
         "provided",
         "declined"
+      ]
+    },
+    "public.extra_work_accept_enum": {
+      "name": "extra_work_accept_enum",
+      "schema": "public",
+      "values": [
+        "accepted",
+        "rejected",
+        "pending"
       ]
     },
     "public.service_status": {

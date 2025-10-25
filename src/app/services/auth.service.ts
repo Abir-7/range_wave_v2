@@ -87,11 +87,13 @@ const registerUser = async (
         trx
       );
 
-      const workshop = await AuthRepository.createWorkshop(
-        { user_id: user.id },
-        trx
-      );
-
+      if (role === "mechanic") {
+        await AuthRepository.createWorkshop({ user_id: user.id }, trx);
+        await AuthRepository.createMechanicPaymentInfo(
+          { user_id: user.id },
+          trx
+        );
+      }
       console.log(otp);
       await publishJob("emailQueue", {
         to: user.email,

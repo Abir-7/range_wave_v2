@@ -1,1 +1,0 @@
-ALTER TABLE "rating_by_user" ADD CONSTRAINT "rating_by_user_mechanic_id_unique" UNIQUE("mechanic_id");

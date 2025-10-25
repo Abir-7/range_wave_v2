@@ -1,1 +1,0 @@
-ALTER TABLE "service_progress" ALTER COLUMN "user_id" DROP NOT NULL;

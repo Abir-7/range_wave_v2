@@ -29,10 +29,9 @@ export const checkNearbyWorkshops = async (
   `);
 
   if (result.rows.length > 0) {
-    console.log("⚠️ Workshop found within 5 km:", result.rows[0]);
-    throw new Error("Workshop found within 5 km");
+    return true;
   }
 
   console.log("✅ No nearby workshops found");
-  return null;
+  return false;
 };

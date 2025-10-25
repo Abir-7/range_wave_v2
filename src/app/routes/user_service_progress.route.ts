@@ -20,7 +20,16 @@ router.patch(
   auth(["user"]),
   ServiceProgressController.markAsComplete
 );
-
+router.patch(
+  "/add_extra_work/:s_id",
+  auth(["mechanic"]),
+  ServiceProgressController.addExtraWorkData
+);
+router.patch(
+  "/accept_or_reject_extra_work/:s_id",
+  auth(["user"]),
+  ServiceProgressController.acceptOrRejectExtraWork
+);
 router.get(
   "/get_running_service_of_user_mechanic",
   auth(["user"]),
