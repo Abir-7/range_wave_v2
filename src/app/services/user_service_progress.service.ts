@@ -70,16 +70,15 @@ const markAsComplete = async (s_id: string, mode: IPaymentType) => {
   }
 
   const total_amount =
-    service_progress_data.extra_work_accept_status === "accepted"
+    (service_progress_data.extra_work_accept_status === "accepted"
       ? Number(service_progress_data.extra_price)
-      : 0 + Number(service_progress_data.bid_data?.price ?? 0);
+      : 0) + Number(service_progress_data.bid_data?.price ?? 0);
   console.log(mode);
-
+  console.log(total_amount);
   if (mode === "offline") {
     const payment_data = {
       tx_id: `tx-${new Date()}`,
       service_progress_id: service_progress_data.id,
-
       payment_type: mode,
       total_amount: total_amount.toString(),
     };
@@ -96,7 +95,11 @@ const markAsComplete = async (s_id: string, mode: IPaymentType) => {
         null
       );
 
-      return { payment_id: saved_payment.id, client_secret: null };
+      return {
+        payment_id: saved_payment.id,
+        client_secret: null,
+        service_progress_id: payment_data.service_progress_id,
+      };
     });
   }
 
@@ -156,18 +159,24 @@ const addExtraWorkData = async (
   service_id: string
 ) => {
   const updated_data = await ServiceProgressRepository.updateServiceProgress(
-    data,
+    { ...data, extra_work_accept_status: "pending" },
     service_id,
     null
   );
   return updated_data;
 };
 const changeServiceStatus = async (s_id: string, status: TServiceStatus) => {
-  return await ServiceProgressRepository.updateServiceProgress(
+  const data = await ServiceProgressRepository.updateServiceProgress(
     { service_status: status },
     s_id,
     null
   );
+
+  return {
+    service_progress_id: data.id,
+    service_id: data.service_id,
+    status: data.service_status,
+  };
 };
 
 export const ServiceProgressService = {

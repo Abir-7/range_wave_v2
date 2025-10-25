@@ -8,6 +8,7 @@ import { db } from "../db";
 import { Payments } from "../db/schema/payment/payment.schema";
 import { PaymentRepository } from "../repositories/payment.repository";
 import { ServiceProgressRepository } from "../repositories/user_service_progress.repository";
+import { Repository } from "../repositories/helper.repository";
 
 const createPaymentIntentForMechanic = async (
   price: number,
@@ -54,24 +55,32 @@ const createPaymentIntentForUser = async (payment_data: {
   type: "other" | "service_complete";
 }) => {
   try {
-    const data = await StripeRepository.createPaymentIntentForUser(
-      Number(payment_data.total_amount),
-      {
-        service_progress_id: payment_data.service_progress_id,
-        type: payment_data.type,
-        user_id: payment_data.user_id,
-      }
-    );
+    return await Repository.transaction(async (tx) => {
+      const data = await StripeRepository.createPaymentIntentForUser(
+        Number(payment_data.total_amount),
+        {
+          service_progress_id: payment_data.service_progress_id,
+          type: payment_data.type,
+          user_id: payment_data.user_id,
+        }
+      );
 
-    const saved_data = await PaymentRepository.savePament({
-      service_progress_id: payment_data.service_progress_id,
-      payment_type: "online",
-      status: "unpaid",
-      total_amount: payment_data.total_amount,
-      tx_id: data.id,
+      const saved_data = await PaymentRepository.savePament(
+        {
+          service_progress_id: payment_data.service_progress_id,
+          payment_type: "online",
+          status: "unpaid",
+          total_amount: payment_data.total_amount,
+          tx_id: data.id,
+        },
+        tx
+      );
+      return {
+        client_secret: data.client_secret,
+        payment_id: saved_data.id,
+        service_progress_id: payment_data.service_progress_id,
+      };
     });
-    return { client_secret: data.client_secret, payment_id: saved_data.id };
-    //return { paymentIntent: data.client_secret };
   } catch (error: any) {
     throw new Error(error);
   }

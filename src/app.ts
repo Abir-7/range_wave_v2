@@ -21,6 +21,8 @@ const cors_option = {
   origin: [
     "http://localhost:3000",
     "https://stripe-front-end-for-test.vercel.app",
+    "https://stripe-front-end.vercel.app",
+    "https://stripe-front-104v2do4v-abir7s-projects.vercel.app",
   ],
   methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE"],
   credentials: true,
