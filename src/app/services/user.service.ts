@@ -1,8 +1,13 @@
+import { TUpdateUserCar } from "../interface/user_car.interface";
+import { IUpdateUserProfile } from "../interface/user_profile.interface";
 import { IMechanicWorkshopPayload } from "../interface/user_workshop.interface";
 import { Repository } from "../repositories/helper.repository";
 import { WorkshopPaymentRepository } from "../repositories/payment_for_workshop.repository";
-import { UserRepository } from "../repositories/user.repo";
+import { StripeRepository } from "../repositories/stripe.repository";
+import { UserRepository } from "../repositories/user.repository";
 import { checkNearbyWorkshops } from "../utils/helper/checkDistanse";
+import unlinkFile from "../utils/helper/unlinkFile";
+import { AppError } from "../utils/serverTools/AppError";
 
 const updateMechanicsWorkshopData = async (
   data: IMechanicWorkshopPayload,
@@ -59,4 +64,52 @@ const updateMechanicsWorkshopData = async (
   });
 };
 
-export const UserService = { updateMechanicsWorkshopData };
+const createAndConnectStripeAccount = async (
+  mechanicUserId: string,
+  mechanicEmail: string
+) => {
+  return await StripeRepository.createStripeConnectAccountLink(
+    mechanicUserId,
+    mechanicEmail
+  );
+};
+
+const updateUserCarInfo = async (user_id: string, car_data: TUpdateUserCar) => {
+  return await UserRepository.updateUserCarData(car_data, user_id);
+};
+
+const updateUserProfile = async (
+  user_id: string,
+  profile_data: IUpdateUserProfile
+) => {
+  const user_profile_data = await UserRepository.getProfileData(user_id);
+
+  if (!user_profile_data) {
+    throw new AppError("User not found.", 404);
+  }
+
+  const old_image_id = user_profile_data.image_id;
+  const new_iamge_id = profile_data.image_id;
+
+  console.log(profile_data);
+
+  const updated_data = await UserRepository.updateUserProfile(
+    user_id,
+    profile_data
+  );
+
+  if (new_iamge_id && old_image_id) {
+    unlinkFile(old_image_id);
+  }
+  if (!updated_data) {
+    unlinkFile(new_iamge_id);
+  }
+  return updated_data;
+};
+
+export const UserService = {
+  updateMechanicsWorkshopData,
+  createAndConnectStripeAccount,
+  updateUserCarInfo,
+  updateUserProfile,
+};

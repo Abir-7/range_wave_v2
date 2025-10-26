@@ -1,4 +1,4 @@
-import { Payments_for_workshop } from "./../db/schema/payment/payment_for_workshop";
+import { Payments_for_workshop } from "../schema/payment/payment_for_workshop";
 import { db } from "../db";
 
 import { and, eq } from "drizzle-orm";

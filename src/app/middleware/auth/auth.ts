@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { IAuthData, TUserRole } from "./auth.interface";
 import { AppError } from "../../utils/serverTools/AppError";
 import { jsonWebToken } from "../../utils/jwt/jwt";
-import { UserRepository } from "../../repositories/user.repo";
+import { UserRepository } from "../../repositories/user.repository";
 
 export const auth =
   (allowed_roles: TUserRole[]) =>

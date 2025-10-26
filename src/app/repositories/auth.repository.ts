@@ -1,14 +1,16 @@
 import { schema } from "./../db/index";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
-import { Users } from "../db/schema/user/user.schema";
+import { Users } from "../schema/user/user.schema";
 
 import { and, desc, eq } from "drizzle-orm";
 import { db } from "../db";
 
-import { UserProfiles } from "../db/schema/user/user_profiles.schema";
-import { UserAuthentications } from "../db/schema/user/user_authentication.schema";
-import { MechanicWorkshop } from "../db/schema/user/mechanics_workshop.schema";
-import { MechanicPaymentData } from "../db/schema/user/mechanic_payment_data.schema";
+import { UserProfiles } from "../schema/user/user_profiles.schema";
+import { UserAuthentications } from "../schema/user/user_authentication.schema";
+import { MechanicWorkshop } from "../schema/user/mechanics_workshop.schema";
+import { MechanicPaymentData } from "../schema/user/mechanic_payment_data.schema";
+import { UserCars } from "../schema/user/user_carinfo.schema";
+import { UserLocations } from "../schema/user/user_location.schema";
 
 const createUser = async (
   data: typeof Users.$inferInsert,
@@ -56,6 +58,34 @@ const createMechanicPaymentInfo = async (
     .returning();
 
   return payment_info;
+};
+
+//create car info
+
+const createUserCarinfo = async (
+  data: typeof UserCars.$inferInsert,
+  trx?: NodePgDatabase<typeof schema>
+) => {
+  const [user_car_data] = await (trx || db)
+    .insert(UserCars)
+    .values(data)
+    .returning();
+
+  return user_car_data;
+};
+
+// user location
+
+const createUserLocationinfo = async (
+  data: typeof UserLocations.$inferInsert,
+  trx?: NodePgDatabase<typeof schema>
+) => {
+  const [user_location_data] = await (trx || db)
+    .insert(UserLocations)
+    .values(data)
+    .returning();
+
+  return user_location_data;
 };
 
 //---------Authentication
@@ -130,4 +160,6 @@ export const AuthRepository = {
   setAuthenticationSuccess,
   createWorkshop,
   createMechanicPaymentInfo,
+  createUserCarinfo,
+  createUserLocationinfo,
 };

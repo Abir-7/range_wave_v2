@@ -9,5 +9,15 @@ router.patch(
   auth(["mechanic"]),
   StripeController.createPaymentIntentForMechanic
 );
+router.get(
+  "/check_eligibility",
+  auth(["mechanic"]),
+  StripeController.checkEligibility
+);
+router.get(
+  "/stripe-dashboard",
+  auth(["mechanic"]),
+  StripeController.getMechanicStripeDashboardLink
+);
 
 export const StripeRoute = router;

@@ -34,7 +34,30 @@ const stripeWebhook = catchAsync(async (req, res) => {
   });
 });
 
+const checkEligibility = catchAsync(async (req, res) => {
+  const result = await StripeService.checkEligibility(req.user.user_id);
+  sendResponse(res, {
+    success: true,
+    status_code: status.OK,
+    message: "Success",
+    data: result,
+  });
+});
+const getMechanicStripeDashboardLink = catchAsync(async (req, res) => {
+  const result = await StripeService.getMechanicStripeDashboardLink(
+    req.user.user_id
+  );
+  sendResponse(res, {
+    success: true,
+    status_code: status.OK,
+    message: "Success",
+    data: result,
+  });
+});
+
 export const StripeController = {
   createPaymentIntentForMechanic,
   stripeWebhook,
+  checkEligibility,
+  getMechanicStripeDashboardLink,
 };

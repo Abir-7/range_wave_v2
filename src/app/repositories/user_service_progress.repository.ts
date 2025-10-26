@@ -2,15 +2,15 @@ import { NodePgDatabase } from "drizzle-orm/node-postgres";
 import {
   ServiceProgress,
   TServiceStatus,
-} from "../db/schema/service_flow/progress/service_progress.schema";
+} from "../schema/service_flow/progress/service_progress.schema";
 import { db, schema } from "../db";
 import { and, desc, eq, inArray, or, sql } from "drizzle-orm";
-import { RatingByUser } from "../db/schema/rating/given_by_user/given_by_user.schema";
-import { RatingByMechanic } from "../db/schema/rating/given_by_mechanic/given_by_mechanic.schema";
-import { UserProfiles } from "../db/schema/user/user_profiles.schema";
+import { RatingByUser } from "../schema/rating/given_by_user/given_by_user.schema";
+import { RatingByMechanic } from "../schema/rating/given_by_mechanic/given_by_mechanic.schema";
+import { UserProfiles } from "../schema/user/user_profiles.schema";
 import { alias } from "drizzle-orm/pg-core";
-import { Services } from "../db/schema/service_flow/service/service.schema";
-import { Bids } from "../db/schema/service_flow/bid/bid.schema";
+import { Services } from "../schema/service_flow/service/service.schema";
+import { Bids } from "../schema/service_flow/bid/bid.schema";
 
 const updateServiceProgress = async (
   data: Partial<typeof ServiceProgress.$inferInsert>,
@@ -43,12 +43,30 @@ const updateServiceProgress = async (
   return updated;
 };
 
-const findServiceProgressData = async (s_id: string) => {
-  const data = await db.query.ServiceProgress.findFirst({
-    where: eq(ServiceProgress.service_id, s_id),
-    with: { bid_data: { columns: { price: true } } },
+const findServiceProgressData = async (
+  s_id: string | null,
+  sp_id: string | null
+) => {
+  let whereClause;
+
+  if (s_id) {
+    whereClause = eq(ServiceProgress.service_id, s_id);
+  } else if (sp_id) {
+    whereClause = eq(ServiceProgress.id, sp_id);
+  } else {
+    throw new Error(
+      "Either service_id or service_progress_id must be provided"
+    );
+  }
+
+  return await db.query.ServiceProgress.findFirst({
+    where: whereClause,
+    with: {
+      bid_data: {
+        columns: { price: true, mechanic_id: true },
+      },
+    },
   });
-  return data;
 };
 
 const getUsersRunningProgress = async (user_id: string) => {

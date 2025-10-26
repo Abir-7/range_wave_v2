@@ -1,7 +1,7 @@
 import { status } from "http-status";
 import { and, eq } from "drizzle-orm";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
-import { Payments } from "../db/schema/payment/payment.schema";
+import { Payments } from "../schema/payment/payment.schema";
 import { db, schema } from "../db";
 
 const savePament = async (

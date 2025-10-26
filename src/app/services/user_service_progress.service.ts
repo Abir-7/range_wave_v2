@@ -1,12 +1,13 @@
-import { IPaymentType } from "../db/schema/payment/payment.schema";
+import { IPaymentType } from "../schema/payment/payment.schema";
 import {
   TExtraWorkAcceptStatus,
   TServiceStatus,
-} from "../db/schema/service_flow/progress/service_progress.schema";
+} from "../schema/service_flow/progress/service_progress.schema";
 import { TUserRole } from "../middleware/auth/auth.interface";
 import { ChatRepository } from "../repositories/chat.repository";
 import { Repository } from "../repositories/helper.repository";
 import { PaymentRepository } from "../repositories/payment.repository";
+import { UserRepository } from "../repositories/user.repository";
 import { ServiceProgressRepository } from "../repositories/user_service_progress.repository";
 import { AppError } from "../utils/serverTools/AppError";
 import { StripeService } from "./stripe.service";
@@ -20,7 +21,10 @@ const hireMechanic = async (
   user_id: string
 ) => {
   const service_progress_data =
-    await ServiceProgressRepository.findServiceProgressData(data.service_id);
+    await ServiceProgressRepository.findServiceProgressData(
+      data.service_id,
+      null
+    );
 
   if (
     service_progress_data &&
@@ -55,7 +59,7 @@ const hireMechanic = async (
 
 const markAsComplete = async (s_id: string, mode: IPaymentType) => {
   const service_progress_data =
-    await ServiceProgressRepository.findServiceProgressData(s_id);
+    await ServiceProgressRepository.findServiceProgressData(s_id, null);
 
   if (!service_progress_data) {
     throw new AppError("Service data not found.", 404);
@@ -73,8 +77,7 @@ const markAsComplete = async (s_id: string, mode: IPaymentType) => {
     (service_progress_data.extra_work_accept_status === "accepted"
       ? Number(service_progress_data.extra_price)
       : 0) + Number(service_progress_data.bid_data?.price ?? 0);
-  console.log(mode);
-  console.log(total_amount);
+
   if (mode === "offline") {
     const payment_data = {
       tx_id: `tx-${new Date()}`,
@@ -104,13 +107,30 @@ const markAsComplete = async (s_id: string, mode: IPaymentType) => {
   }
 
   if (mode === "online") {
-    const data = await StripeService.createPaymentIntentForUser({
-      payment_type: "online",
-      service_progress_id: service_progress_data.id,
-      total_amount: String(total_amount),
-      type: "service_complete",
-      user_id: service_progress_data.user_id!,
-    });
+    const mechanic_id = service_progress_data?.bid_data?.mechanic_id;
+    if (!mechanic_id) {
+      throw new AppError("Mechanic data not found.");
+    }
+
+    const mechanic_payment_info = await UserRepository.getMechanicsPaymentData(
+      mechanic_id
+    );
+
+    if (!mechanic_payment_info || !mechanic_payment_info.account_id) {
+      throw new AppError("Mechanic Account id not found.", 400);
+    }
+
+    const data = await StripeService.createPaymentIntentForUser(
+      {
+        payment_type: "online",
+        service_progress_id: service_progress_data.id,
+        total_amount: String(total_amount),
+        type: "service_complete",
+        user_id: service_progress_data.user_id!,
+      },
+      mechanic_payment_info.account_id
+      //  if need then add  curency here
+    );
 
     // return { paymentIntent: data.client_secret };
     return data;

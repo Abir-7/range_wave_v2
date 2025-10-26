@@ -5,10 +5,12 @@ import { appConfig } from "../config/appConfig";
 import { stripe } from "../config/stripe";
 import Stripe from "stripe";
 import { db } from "../db";
-import { Payments } from "../db/schema/payment/payment.schema";
+import { Payments } from "../schema/payment/payment.schema";
 import { PaymentRepository } from "../repositories/payment.repository";
 import { ServiceProgressRepository } from "../repositories/user_service_progress.repository";
 import { Repository } from "../repositories/helper.repository";
+import { AppError } from "../utils/serverTools/AppError";
+import { UserRepository } from "../repositories/user.repository";
 
 const createPaymentIntentForMechanic = async (
   price: number,
@@ -47,13 +49,17 @@ const createPaymentIntentForMechanic = async (
   }
 };
 
-const createPaymentIntentForUser = async (payment_data: {
-  service_progress_id: string;
-  payment_type: string;
-  total_amount: string;
-  user_id: string;
-  type: "other" | "service_complete";
-}) => {
+const createPaymentIntentForUser = async (
+  payment_data: {
+    service_progress_id: string;
+    payment_type: string;
+    total_amount: string;
+    user_id: string;
+    type: "other" | "service_complete";
+  },
+  mechanic_account_id: string,
+  currency: string = "usd"
+) => {
   try {
     return await Repository.transaction(async (tx) => {
       const data = await StripeRepository.createPaymentIntentForUser(
@@ -62,7 +68,9 @@ const createPaymentIntentForUser = async (payment_data: {
           service_progress_id: payment_data.service_progress_id,
           type: payment_data.type,
           user_id: payment_data.user_id,
-        }
+        },
+        currency,
+        mechanic_account_id
       );
 
       const saved_data = await PaymentRepository.savePament(
@@ -84,6 +92,42 @@ const createPaymentIntentForUser = async (payment_data: {
   } catch (error: any) {
     throw new Error(error);
   }
+};
+
+const checkEligibility = async (mechanic_id: string) => {
+  const mechanicData = await UserRepository.getMechanicsPaymentData(
+    mechanic_id
+  );
+
+  if (!mechanicData || !mechanicData.account_id) {
+    return { eligible: false, reason: "No connected Stripe account" };
+  }
+
+  const stripe_data = await StripeRepository.checkEligibility(
+    mechanicData.account_id
+  );
+
+  if (stripe_data.eligible) {
+    await UserRepository.updateMechanicPaymentData(
+      { is_active: true },
+      mechanic_id
+    );
+  }
+  return stripe_data;
+};
+
+const getMechanicStripeDashboardLink = async (mechanic_id: string) => {
+  const mechanicData = await UserRepository.getMechanicsPaymentData(
+    mechanic_id
+  );
+
+  if (!mechanicData || !mechanicData.account_id) {
+    return { eligible: false, reason: "No connected Stripe account" };
+  }
+
+  return await StripeRepository.getMechanicStripeDashboardLink(
+    mechanicData.account_id
+  );
 };
 
 const stripeWebhook = async (rawBody: Buffer, sig: string) => {
@@ -166,9 +210,24 @@ const stripeWebhook = async (rawBody: Buffer, sig: string) => {
           service_progress_id
         );
       }
-
       break;
     }
+    // case "account.updated": {
+    //   const account = event.data.object as Stripe.Account;
+
+    //   const payoutsEnabled = account.payouts_enabled;
+    //   const chargesEnabled = account.charges_enabled;
+    //   const requirements = account.requirements;
+
+    //   if (chargesEnabled && payoutsEnabled) {
+    //     logger.info("Account activated.");
+    //   }
+    //   break;
+    // }
+
+    // case "": {
+    //   logger.info("Account activated. 2nd");
+    // }
   }
 };
 
@@ -176,4 +235,6 @@ export const StripeService = {
   createPaymentIntentForMechanic,
   createPaymentIntentForUser,
   stripeWebhook,
+  getMechanicStripeDashboardLink,
+  checkEligibility,
 };

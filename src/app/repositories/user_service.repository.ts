@@ -1,13 +1,13 @@
 import { Repository } from "./helper.repository";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { db, schema } from "../db";
-import { Services } from "../db/schema/service_flow/service/service.schema";
-import { ServiceProgress } from "../db/schema/service_flow/progress/service_progress.schema";
+import { Services } from "../schema/service_flow/service/service.schema";
+import { ServiceProgress } from "../schema/service_flow/progress/service_progress.schema";
 import { and, desc, eq, inArray, isNull, notExists, sql } from "drizzle-orm";
-import { Bids } from "../db/schema/service_flow/bid/bid.schema";
-import { RatingByMechanic } from "../db/schema/rating/given_by_mechanic/given_by_mechanic.schema";
-import { UserProfiles } from "../db/schema/user/user_profiles.schema";
-import { Users } from "../db/schema/user/user.schema";
+import { Bids } from "../schema/service_flow/bid/bid.schema";
+import { RatingByMechanic } from "../schema/rating/given_by_mechanic/given_by_mechanic.schema";
+import { UserProfiles } from "../schema/user/user_profiles.schema";
+import { Users } from "../schema/user/user.schema";
 
 const makeServiceReq = async (
   data: typeof Services.$inferInsert,

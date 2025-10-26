@@ -1,14 +1,14 @@
 import { and, eq } from "drizzle-orm";
 import { db } from "../db";
-import { Bids } from "../db/schema/service_flow/bid/bid.schema";
-import { Services } from "../db/schema/service_flow/service/service.schema";
-import { UserProfiles } from "../db/schema/user/user_profiles.schema";
-import { Users } from "../db/schema/user/user.schema";
-import { ServiceProgress } from "../db/schema/service_flow/progress/service_progress.schema";
-import { RatingByMechanic } from "../db/schema/rating/given_by_mechanic/given_by_mechanic.schema";
+import { Bids } from "../schema/service_flow/bid/bid.schema";
+import { Services } from "../schema/service_flow/service/service.schema";
+import { UserProfiles } from "../schema/user/user_profiles.schema";
+import { Users } from "../schema/user/user.schema";
+import { ServiceProgress } from "../schema/service_flow/progress/service_progress.schema";
+import { RatingByMechanic } from "../schema/rating/given_by_mechanic/given_by_mechanic.schema";
 import { sql } from "drizzle-orm";
 
-import { MechanicWorkshop } from "../db/schema/user/mechanics_workshop.schema";
+import { MechanicWorkshop } from "../schema/user/mechanics_workshop.schema";
 import { Repository } from "./helper.repository";
 
 const addBid = async (data: typeof Bids.$inferInsert) => {

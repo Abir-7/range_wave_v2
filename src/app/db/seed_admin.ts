@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { db } from ".";
-import { Users } from "./schema/user/user.schema";
+import { Users } from "../schema/user/user.schema";
 import getHashedPassword from "../utils/helper/getHashedPassword";
 import { logger } from "../utils/serverTools/logger";
 import { appConfig } from "../config/appConfig";

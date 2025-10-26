@@ -9,7 +9,7 @@ export default defineConfig({
     // "./src/app/db/schema/service_flow/service",
     // "./src/app/db/schema/chat/message",
     // "./src/app/db/schema/chat/room",
-    "./src/app/db/schema/**/*.ts",
+    "./src/app/schema/**/*.ts",
   ],
   dbCredentials: {
     url: appConfig.database.dataBase_uri as string,

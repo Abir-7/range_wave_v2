@@ -1,5 +1,3 @@
-import { decode } from "./../../../node_modules/zod/src/v4/classic/parse";
-
 import { AppError } from "../utils/serverTools/AppError";
 import getHashedPassword from "../utils/helper/getHashedPassword";
 
@@ -13,7 +11,7 @@ import getOtp from "../utils/helper/getOtp";
 import getExpiryTime from "../utils/helper/getExpiryTime";
 import { publishJob } from "../lib/rabbitMq/publisher";
 import isExpired from "../utils/helper/isExpired";
-import { UserRepository } from "../repositories/user.repo";
+import { UserRepository } from "../repositories/user.repository";
 import { logger } from "../utils/serverTools/logger";
 import { validateUserStatus } from "../utils/helper/validateUserStatus";
 
@@ -34,28 +32,23 @@ const registerUser = async (
     image?: string;
   }
 ) => {
-  console.log(profileData);
+  const user_email = userData.email.toLowerCase().trim();
 
-  const { email, password, role } = userData;
-
-  const user_email = email?.toLowerCase().trim();
-
-  // Check if user already exists
   const existing = await UserRepository.findByEmail(user_email);
-  if (existing && existing.is_verified) {
+
+  if (existing?.is_verified) {
     throw new Error("User already exists with this email.");
   }
 
   if (
     existing &&
     (!existing.is_verified ||
-      existing.status === "deleted" ||
-      existing.status === "pending_verification")
+      ["deleted", "pending_verification"].includes(existing.status))
   ) {
-    UserRepository.deleteUser(existing.id);
+    await UserRepository.deleteUser(existing.id);
   }
 
-  const password_hash = await getHashedPassword(password);
+  const password_hash = await getHashedPassword(userData.password);
   const otp = getOtp(4).toString();
   const expire_time = getExpiryTime(10);
 
@@ -65,19 +58,19 @@ const registerUser = async (
         {
           email: user_email,
           password_hash,
-          role,
+          role: userData.role,
           is_verified: false,
           status: "pending_verification",
         },
         trx
       );
 
-      const profile = await AuthRepository.createProfile(
+      await AuthRepository.createProfile(
         { ...profileData, user_id: user.id },
         trx
       );
 
-      const authentication = await AuthRepository.createAuthentication(
+      await AuthRepository.createAuthentication(
         {
           user_id: user.id,
           otp,
@@ -87,14 +80,20 @@ const registerUser = async (
         trx
       );
 
-      if (role === "mechanic") {
+      if (userData.role === "mechanic") {
         await AuthRepository.createWorkshop({ user_id: user.id }, trx);
         await AuthRepository.createMechanicPaymentInfo(
           { user_id: user.id },
           trx
         );
       }
-      console.log(otp);
+
+      if (userData.role === "user") {
+        await AuthRepository.createUserCarinfo({ user_id: user.id }, trx);
+      }
+
+      await AuthRepository.createUserLocationinfo({ user_id: user.id }, trx);
+
       await publishJob("emailQueue", {
         to: user.email,
         subject: "Verification",
@@ -104,15 +103,12 @@ const registerUser = async (
         purpose: "Verify your email",
       });
 
-      // Return the results
-      return { user, profile, authentication };
+      return { user };
     });
 
-    // Return or use the results outside the transaction
     return { id: user.id, email: user.email };
-  } catch (error) {
-    // console.error("User registration failed:", error);
-    throw error;
+  } catch (err: any) {
+    throw new Error(err?.message || "Registration failed");
   }
 };
 

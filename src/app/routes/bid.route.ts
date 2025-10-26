@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { auth } from "../middleware/auth/auth";
-import { BidController } from "../controller/bid.contoller";
+import { BidController } from "../controller/bid.controller";
 
 const router = Router();
 router.post("/add_bid", auth(["mechanic"]), BidController.makeBid);
