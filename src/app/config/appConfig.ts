@@ -47,4 +47,8 @@ export const appConfig = {
   rabbitMq: {
     url: process.env.RABBITMQ_URL,
   },
+  radis: {
+    host: process.env.REDIS_HOST,
+    port: process.env.REDIS_PORT,
+  },
 };
