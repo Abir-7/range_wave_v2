@@ -13,7 +13,7 @@ const ratingGivenByMechanic = async (data: IRating, mechanic_id: string) => {
   return await RatingRepository.ratingGivenByMechanic({
     ...data,
     mechanic_id,
-    user_id: service_progress_data?.user_id,
+    user_id: service_progress_data?.user_id!,
   });
 };
 

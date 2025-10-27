@@ -1,0 +1,14 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ServiceProgressRoute = void 0;
+const express_1 = require("express");
+const auth_1 = require("../middleware/auth/auth");
+const user_service_progress_controller_1 = require("../controller/user_service_progress.controller");
+const router = (0, express_1.Router)();
+router.patch("/hire_mechanic", (0, auth_1.auth)(["user"]), user_service_progress_controller_1.ServiceProgressController.hireMechanic);
+router.patch("/change_status/:s_id", (0, auth_1.auth)(["mechanic"]), user_service_progress_controller_1.ServiceProgressController.changeServiveStatus);
+router.patch("/mark_as_complete/:s_id", (0, auth_1.auth)(["user"]), user_service_progress_controller_1.ServiceProgressController.markAsComplete);
+router.patch("/add_extra_work/:s_id", (0, auth_1.auth)(["mechanic"]), user_service_progress_controller_1.ServiceProgressController.addExtraWorkData);
+router.patch("/accept_or_reject_extra_work/:s_id", (0, auth_1.auth)(["user"]), user_service_progress_controller_1.ServiceProgressController.acceptOrRejectExtraWork);
+router.get("/get_running_service_of_user_mechanic", (0, auth_1.auth)(["user"]), user_service_progress_controller_1.ServiceProgressController.getAllRunningServiceProgressOfUserOrMechanic);
+exports.ServiceProgressRoute = router;

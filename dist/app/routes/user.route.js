@@ -1,0 +1,15 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.UserRoute = void 0;
+const user_controller_1 = require("../controller/user.controller");
+const express_1 = require("express");
+const auth_1 = require("../middleware/auth/auth");
+const multer_1 = require("../middleware/multer/multer");
+const parseData_1 = require("../middleware/parseData");
+const router = (0, express_1.Router)();
+router.patch("/update_workshop", (0, auth_1.auth)(["mechanic"]), user_controller_1.UserController.updateMechanicsWorkshopData);
+router.patch("/update_car_info", (0, auth_1.auth)(["user"]), user_controller_1.UserController.updateUserCarData);
+router.patch("/update_user_profile", (0, auth_1.auth)(["user", "mechanic"]), multer_1.upload.single("image"), (0, parseData_1.parseDataField)("data"), user_controller_1.UserController.updateUserProfile);
+router.get("/connect_stripe_account", (0, auth_1.auth)(["mechanic"]), user_controller_1.UserController.createAndConnectStripeAccount);
+router.get("/get_mechanic_earning_data", (0, auth_1.auth)(["mechanic"]), user_controller_1.UserController.getMechanicsEarningData);
+exports.UserRoute = router;
