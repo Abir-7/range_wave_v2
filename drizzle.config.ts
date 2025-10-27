@@ -12,6 +12,6 @@ export default defineConfig({
     "./src/app/schema/**/*.ts",
   ],
   dbCredentials: {
-    url: "postgres://postgres:postgres@localhost:5432/range_wave",
+    url: appConfig.database.dataBase_uri as string,
   },
 });

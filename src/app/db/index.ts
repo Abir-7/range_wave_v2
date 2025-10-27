@@ -42,7 +42,6 @@ import { Payments, PaymentsRelations } from "../schema/payment/payment.schema";
 import {
   ServiceProgress,
   ServiceProgressRelation,
-  serviceStatusEnum,
 } from "../schema/service_flow/progress/service_progress.schema";
 import { Bids, BidsRelations } from "../schema/service_flow/bid/bid.schema";
 import {
