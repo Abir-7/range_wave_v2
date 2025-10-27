@@ -13,12 +13,13 @@ const createUser = catchAsync(async (req: Request, res: Response) => {
       400
     );
   }
+  console.time("create-user");
 
   const result = await AuthService.registerUser(
     { email, password, role },
     profile
   );
-
+  console.timeEnd("create-user");
   sendResponse(res, {
     success: true,
     message: "User created successfully",
