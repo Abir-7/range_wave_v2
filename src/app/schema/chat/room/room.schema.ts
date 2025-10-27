@@ -17,9 +17,7 @@ export const ChatRooms = pgTable("chat_rooms", {
     .notNull()
     .references(() => UserProfiles.user_id, { onDelete: "cascade" }),
 
-  last_message_id: uuid("last_message_id").references(() => Messages.id, {
-    onDelete: "set null",
-  }),
+  last_message_id: uuid("last_message_id"),
   ...timestamps,
 });
 

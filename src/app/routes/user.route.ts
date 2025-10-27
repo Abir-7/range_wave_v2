@@ -30,4 +30,10 @@ router.get(
   UserController.createAndConnectStripeAccount
 );
 
+router.get(
+  "/get_mechanic_earning_data",
+  auth(["mechanic"]),
+  UserController.getMechanicsEarningData
+);
+
 export const UserRoute = router;

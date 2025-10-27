@@ -30,6 +30,8 @@ const makeBid = async (
     !mechanic_payment_info.is_active ||
     !mechanic_payment_info.account_id
   ) {
+    throw new AppError("Please setup your payment from profile section.", 400);
+
     return {
       is_payment_profile_active: false,
       service_id: null,

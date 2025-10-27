@@ -74,9 +74,22 @@ const createAndConnectStripeAccount = catchAsync(
     });
   }
 );
+const getMechanicsEarningData = catchAsync(
+  async (req: Request, res: Response) => {
+    const result = await UserService.getMechanicsEarningData(req.user.user_id);
+
+    sendResponse(res, {
+      success: true,
+      message: "Earnig data fetched successfully",
+      status_code: 200,
+      data: result,
+    });
+  }
+);
 export const UserController = {
   updateMechanicsWorkshopData,
   createAndConnectStripeAccount,
   updateUserCarData,
   updateUserProfile,
+  getMechanicsEarningData,
 };

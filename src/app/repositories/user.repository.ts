@@ -9,7 +9,13 @@ import { UserLocations } from "../schema/user/user_location.schema";
 import { UserCars } from "../schema/user/user_carinfo.schema";
 
 const findByEmail = async (email: string) => {
-  const [user] = await db.select().from(Users).where(eq(Users.email, email));
+  const [user] = await db.query.Users.findMany({
+    where: eq(Users.email, email),
+    with: {
+      profile: true, // assuming you have a relation named 'profile' in UsersRelations
+    },
+  });
+
   return user || null;
 };
 
@@ -42,10 +48,24 @@ const updateUserProfile = async (
   console.log(data);
   const [profile] = await (trx || db)
     .update(UserProfiles)
-    .set({ ...data, updated_at: new Date() })
+    .set({ ...data })
     .where(eq(UserProfiles.user_id, id))
     .returning();
   return profile;
+};
+const updateLocationData = async (
+  data: typeof UserLocations.$inferInsert,
+  user_mechanic_id: string,
+  tx?: NodePgDatabase<typeof schema>
+) => {
+  const client = tx ?? db;
+  const [updated_data] = await client
+    .update(UserLocations)
+    .set({ ...data })
+    .where(eq(UserLocations.user_id, user_mechanic_id))
+    .returning();
+
+  return updated_data;
 };
 
 const deleteUser = async (id: string) => {
@@ -71,7 +91,7 @@ const updateMechanicPaymentData = async (
   mechanic_id: string
 ) => {
   const [updated_data] = await db
-    .update(MechanicPaymentData)
+    .update({ ...MechanicPaymentData, updated_at: new Date() })
     .set(data)
     .where(eq(MechanicPaymentData.user_id, mechanic_id))
     .returning();
@@ -88,23 +108,10 @@ const update_workshop_data = async (
 
   const [updated] = await client
     .update(MechanicWorkshop)
-    .set(data)
+    .set({ ...data, updated_at: new Date() })
     .where(eq(MechanicWorkshop.user_id, mechanic_id))
     .returning();
   return updated;
-};
-
-const updateLocationData = async (
-  data: typeof UserLocations.$inferInsert,
-  user_mechanic_id: string,
-  tx?: NodePgDatabase<typeof schema>
-) => {
-  const client = tx ?? db;
-  return await client
-    .update(UserLocations)
-    .set(data)
-    .where(eq(UserLocations.user_id, user_mechanic_id))
-    .returning();
 };
 
 const updateUserCarData = async (
@@ -115,7 +122,7 @@ const updateUserCarData = async (
   const client = tx ?? db;
   const [updated_data] = await client
     .update(UserCars)
-    .set(data)
+    .set({ ...data, updated_at: new Date() })
     .where(eq(UserCars.user_id, user_id))
     .returning();
 
@@ -127,6 +134,12 @@ const getProfileData = async (user_id: string) => {
     where: eq(UserProfiles.user_id, user_id),
   });
   return user_data;
+};
+const getUserCarData = async (user_id: string) => {
+  const user_car_data = await db.query.UserCars.findFirst({
+    where: eq(UserCars.user_id, user_id),
+  });
+  return user_car_data;
 };
 
 export const UserRepository = {
@@ -143,4 +156,5 @@ export const UserRepository = {
   updateLocationData,
   updateUserCarData,
   getProfileData,
+  getUserCarData,
 };

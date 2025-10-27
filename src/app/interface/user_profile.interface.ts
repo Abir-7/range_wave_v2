@@ -3,7 +3,6 @@ export interface IUpdateUserProfile {
   user_name?: string;
   mobile?: string;
   address?: string;
-  gender?: "male" | "female" | "other";
   image_id: string;
   image: string;
 }

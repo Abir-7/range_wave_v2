@@ -230,6 +230,7 @@ const userLogin = async (data: {
   );
   const decoded_access_token = jsonWebToken.decodeToken(access_token);
   const decoded_refresh_token = jsonWebToken.decodeToken(refress_token);
+
   return {
     access_token,
     refress_token,
@@ -237,6 +238,7 @@ const userLogin = async (data: {
     access_token_expire: decoded_access_token.exp,
     refresh_token_expire: decoded_refresh_token.exp,
     user_role: decoded_access_token.user_role,
+    is_profile_updated: user_data.profile.is_profile_completed,
   };
 };
 

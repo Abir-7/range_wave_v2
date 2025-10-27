@@ -1,8 +1,10 @@
+import { Bids } from "./../schema/service_flow/bid/bid.schema";
 import { status } from "http-status";
 import { and, eq } from "drizzle-orm";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { Payments } from "../schema/payment/payment.schema";
 import { db, schema } from "../db";
+import { ServiceProgress } from "../schema/service_flow/progress/service_progress.schema";
 
 const savePament = async (
   data: typeof Payments.$inferInsert,
@@ -26,7 +28,7 @@ const updatePamentStatus = async (
 
   const updated_data = await client
     .update(Payments)
-    .set({ status: status })
+    .set({ status: status, updated_at: new Date() })
     .where(
       and(
         (eq(Payments.service_progress_id, data.service_progress_id),
@@ -43,8 +45,27 @@ const getPaymentByServiceProgresId = async (sp_id: string) => {
   return saved_payment;
 };
 
+const getMechanicsEarningData = async (mechanic_id: string) => {
+  const data = await db
+    .select({
+      payment: Payments,
+      service_progress: ServiceProgress,
+      bid_data: Bids,
+    })
+    .from(Payments)
+    .leftJoin(
+      ServiceProgress,
+      eq(ServiceProgress.id, Payments.service_progress_id)
+    )
+    .leftJoin(Bids, eq(Bids.service_id, ServiceProgress.service_id))
+    .where(eq(Bids.mechanic_id, mechanic_id));
+
+  return data;
+};
+
 export const PaymentRepository = {
   savePament,
   getPaymentByServiceProgresId,
   updatePamentStatus,
+  getMechanicsEarningData,
 };

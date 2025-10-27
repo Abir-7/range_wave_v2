@@ -2,10 +2,12 @@ import { TUpdateUserCar } from "../interface/user_car.interface";
 import { IUpdateUserProfile } from "../interface/user_profile.interface";
 import { IMechanicWorkshopPayload } from "../interface/user_workshop.interface";
 import { Repository } from "../repositories/helper.repository";
+import { PaymentRepository } from "../repositories/payment.repository";
 import { WorkshopPaymentRepository } from "../repositories/payment_for_workshop.repository";
 import { StripeRepository } from "../repositories/stripe.repository";
 import { UserRepository } from "../repositories/user.repository";
 import { checkNearbyWorkshops } from "../utils/helper/checkDistanse";
+import { splitUserData } from "../utils/helper/splitUserData";
 import unlinkFile from "../utils/helper/unlinkFile";
 import { AppError } from "../utils/serverTools/AppError";
 
@@ -75,36 +77,73 @@ const createAndConnectStripeAccount = async (
 };
 
 const updateUserCarInfo = async (user_id: string, car_data: TUpdateUserCar) => {
-  return await UserRepository.updateUserCarData(car_data, user_id);
+  return await Repository.transaction(async (tx) => {
+    const update_profile = await UserRepository.updateUserProfile(
+      user_id,
+      {
+        is_profile_completed: true,
+      },
+      tx
+    );
+
+    const updated_car_info = await UserRepository.updateUserCarData(
+      car_data,
+      user_id
+    );
+
+    return {
+      ...updated_car_info,
+      is_profile_updated: update_profile.is_profile_completed,
+    };
+  });
 };
 
 const updateUserProfile = async (
   user_id: string,
-  profile_data: IUpdateUserProfile
+  user_data: Record<string, any>
 ) => {
-  const user_profile_data = await UserRepository.getProfileData(user_id);
+  const { profile_data, location_data } = splitUserData(user_data);
 
-  if (!user_profile_data) {
-    throw new AppError("User not found.", 404);
-  }
+  const user_profile_data = await UserRepository.getProfileData(user_id);
+  if (!user_profile_data) throw new AppError("User not found.", 404);
 
   const old_image_id = user_profile_data.image_id;
-  const new_iamge_id = profile_data.image_id;
+  const new_image_id = profile_data.image_id;
 
-  console.log(profile_data);
+  // declare to capture results
+  let updated_data: any;
+  let updated_location: any;
 
-  const updated_data = await UserRepository.updateUserProfile(
-    user_id,
-    profile_data
-  );
+  await Repository.transaction(async (tx) => {
+    updated_data = await UserRepository.updateUserProfile(
+      user_id,
+      profile_data,
+      tx
+    );
 
-  if (new_iamge_id && old_image_id) {
+    updated_location = await UserRepository.updateLocationData(
+      location_data,
+      user_id,
+      tx
+    );
+  });
+
+  // after tx commit
+
+  if (new_image_id && old_image_id) {
     unlinkFile(old_image_id);
   }
-  if (!updated_data) {
-    unlinkFile(new_iamge_id);
+
+  // if profile update fails, clean uploaded new image
+  if (!updated_data && new_image_id) {
+    unlinkFile(new_image_id);
   }
-  return updated_data;
+
+  return { ...updated_data, ...updated_location };
+};
+
+const getMechanicsEarningData = async (mechanic_id: string) => {
+  return await PaymentRepository.getMechanicsEarningData(mechanic_id);
 };
 
 export const UserService = {
@@ -112,4 +151,5 @@ export const UserService = {
   createAndConnectStripeAccount,
   updateUserCarInfo,
   updateUserProfile,
+  getMechanicsEarningData,
 };

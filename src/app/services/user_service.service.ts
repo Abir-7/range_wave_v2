@@ -1,9 +1,17 @@
 import { TUserRole } from "../middleware/auth/auth.interface";
 import { Repository } from "../repositories/helper.repository";
+import { UserRepository } from "../repositories/user.repository";
 import { ServiceRepository } from "../repositories/user_service.repository";
 import { ServiceProgressRepository } from "../repositories/user_service_progress.repository";
+import { AppError } from "../utils/serverTools/AppError";
 
 const makeServiceReq = async (data: any, user_id: string) => {
+  const car_data = await UserRepository.getUserCarData(user_id);
+
+  if (!car_data || (car_data && !car_data.car_model)) {
+    throw new AppError("Please add your car info to make service request.");
+  }
+
   return await Repository.transaction(async (tx) => {
     const service_Data = {
       ...data,

@@ -19,7 +19,7 @@ const savePaymentForWorkshop = async (
 const updatePaymentForWorkshop = async (tx_id: string, mechanic_id: string) => {
   return db
     .update(Payments_for_workshop)
-    .set({ status: "paid" })
+    .set({ status: "paid", updated_at: new Date() })
     .where(
       and(
         eq(Payments_for_workshop.tx_id, tx_id),

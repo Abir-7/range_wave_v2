@@ -11,7 +11,7 @@ export const Payments_for_workshop = pgTable("payments_for_workshop", {
   mechanic_id: uuid("mechanic_id")
     .notNull()
     .unique()
-    .references(() => MechanicWorkshop.user_id),
+    .references(() => MechanicWorkshop.user_id, { onDelete: "cascade" }),
   total_amount: numeric("total_amount", { precision: 12, scale: 2 }).notNull(),
   status: paymentStatusEnum("status").notNull(),
   ...timestamps,

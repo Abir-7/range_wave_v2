@@ -36,7 +36,7 @@ const updateServiceProgress = async (
 
   const [updated] = await client
     .update(ServiceProgress)
-    .set(data)
+    .set({ ...data, updated_at: new Date() })
     .where(or(...orConditions)) // <-- any one can match
     .returning();
 

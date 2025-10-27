@@ -8,6 +8,7 @@ import { Bids } from "../schema/service_flow/bid/bid.schema";
 import { RatingByMechanic } from "../schema/rating/given_by_mechanic/given_by_mechanic.schema";
 import { UserProfiles } from "../schema/user/user_profiles.schema";
 import { Users } from "../schema/user/user.schema";
+import { UserCars } from "../schema/user/user_carinfo.schema";
 
 const makeServiceReq = async (
   data: typeof Services.$inferInsert,
@@ -120,9 +121,14 @@ const getServiceDetails = async (s_id: string) => {
         mobile: UserProfiles.mobile,
         image: UserProfiles.image,
       },
+      car_data: {
+        car_name: UserCars.car_name,
+        car_model: UserCars.car_model,
+      },
     })
     .from(Services)
     .leftJoin(UserProfiles, eq(UserProfiles.user_id, Services.user_id))
+    .leftJoin(UserCars, eq(UserCars.user_id, Services.user_id))
     .where(eq(Services.id, s_id))
     .limit(1);
 
