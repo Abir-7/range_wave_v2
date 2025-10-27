@@ -96,14 +96,14 @@ const registerUser = async (
 
       return { user };
     });
-    // publishJob("emailQueue", {
-    //   to: user.email,
-    //   subject: "Verification",
-    //   code: otp,
-    //   project_name: "WrenchWave",
-    //   expire_time: "10 min",
-    //   purpose: "Verify your email",
-    // });
+    publishJob("emailQueue", {
+      to: user.email,
+      subject: "Verification",
+      code: otp,
+      project_name: "WrenchWave",
+      expire_time: "10 min",
+      purpose: "Verify your email",
+    });
 
     return { id: user.id, email: user.email };
   } catch (err: any) {
