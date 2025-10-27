@@ -18,7 +18,7 @@ server.listen(appConfig.server.port, async () => {
       `🚀 Server running in ${appConfig.server.node_env} mode on port ${appConfig.server.port}`
     );
     await db.execute("select 1").then(() => logger.info("Database connected."));
-    await startConsumers(); // start RabbitMQ consumers
+    //  await startConsumers(); // start RabbitMQ consumers
     initSocket(server);
     await seedAdmin();
   } catch (err) {
