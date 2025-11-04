@@ -78,6 +78,10 @@ const markAsComplete = async (s_id: string, mode: IPaymentType) => {
       ? Number(service_progress_data.extra_price)
       : 0) + Number(service_progress_data.bid_data?.price ?? 0);
 
+  if (total_amount <= 0) {
+    throw new AppError("Total ammount can't be Zero");
+  }
+
   if (mode === "offline") {
     const payment_data = {
       tx_id: `tx-${new Date()}`,
@@ -199,6 +203,18 @@ const changeServiceStatus = async (s_id: string, status: TServiceStatus) => {
   };
 };
 
+const cancelSerivce = async (user_id: string, s_id: string, reason: string) => {
+  const user_data = await UserRepository.findById(user_id);
+  if (!user_data) {
+    throw new AppError("User not found.", 404);
+  }
+  return await ServiceProgressRepository.cancelService(
+    s_id,
+    reason,
+    user_data.role
+  );
+};
+
 export const ServiceProgressService = {
   hireMechanic,
   changeServiceStatus,
@@ -206,4 +222,5 @@ export const ServiceProgressService = {
   getAllRunningServiceProgress,
   addExtraWorkData,
   acceptOrRejectExtraWork,
+  cancelSerivce,
 };

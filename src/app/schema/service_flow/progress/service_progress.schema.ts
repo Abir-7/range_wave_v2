@@ -31,7 +31,8 @@ const serviceStatusValues = [
 
 // Create the PostgreSQL enum
 export const serviceStatusEnum = pgEnum("service_status", serviceStatusValues);
-
+const cancelByValue = ["USER", "MECHANIC", "ADMIN"] as const;
+export const cancelByEnum = pgEnum("cancel_by", cancelByValue);
 // TypeScript type from values
 export type TServiceStatus = (typeof serviceStatusValues)[number];
 export type TExtraWorkAcceptStatus = (typeof extraWorkAcceptValues)[number];
@@ -60,6 +61,7 @@ export const ServiceProgress = pgTable("service_progress", {
   extra_price: numeric("extra_price", { precision: 12, scale: 2 }).default("0"),
 
   service_status: serviceStatusEnum("status").notNull().default("FINDING"),
+  cancel_by: cancelByEnum("cancel_by"),
 
   is_scheduled: boolean("is_scheduled").notNull().default(false),
 

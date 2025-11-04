@@ -11,6 +11,7 @@ import { UserProfiles } from "../schema/user/user_profiles.schema";
 import { alias } from "drizzle-orm/pg-core";
 import { Services } from "../schema/service_flow/service/service.schema";
 import { Bids } from "../schema/service_flow/bid/bid.schema";
+import { TUserRole } from "../middleware/auth/auth.interface";
 
 const updateServiceProgress = async (
   data: Partial<typeof ServiceProgress.$inferInsert>,
@@ -274,6 +275,20 @@ const getMechanicsAllRunningServiceProgress = async (
   return result;
 };
 
+const cancelService = async (s_id: string, reason: string, role: TUserRole) => {
+  const [data] = await db
+    .update(ServiceProgress)
+    .set({
+      service_status: "CANCELLED",
+      cancel_reason: reason,
+      cancel_by:
+        role === "mechanic" ? "MECHANIC" : role === "user" ? "USER" : "ADMIN",
+    })
+    .where(eq(ServiceProgress.id, s_id))
+    .returning();
+  return data;
+};
+
 export const ServiceProgressRepository = {
   updateServiceProgress,
   findServiceProgressData,
@@ -281,6 +296,7 @@ export const ServiceProgressRepository = {
   getUsersRunningProgress,
   getMechanicsAllRunningServiceProgress,
   getUsersAllRunningServiceProgress,
+  cancelService,
 };
 
 // ====================== SubQuery =============================

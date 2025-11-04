@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import catchAsync from "../utils/serverTools/catchAsync";
 import sendResponse from "../utils/serverTools/sendResponse";
 import { UserServiceReqService } from "../services/user_service.service";
+import { ServiceProgressService } from "../services/user_service_progress.service";
 
 const makeServiceReq = catchAsync(async (req: Request, res: Response) => {
   const result = await UserServiceReqService.makeServiceReq(
@@ -75,10 +76,26 @@ const getRunningServiceDetails = catchAsync(
     });
   }
 );
+
+const cancelService = catchAsync(async (req: Request, res: Response) => {
+  const result = await ServiceProgressService.cancelSerivce(
+    req.user.user_id,
+    req.params.s_id,
+    req.body.reason
+  );
+  sendResponse(res, {
+    success: true,
+    message: "Service canceled successfully.",
+    status_code: 200,
+    data: result,
+  });
+});
+
 export const UserServiceController = {
   makeServiceReq,
   getLatestRunningService,
   getAvailableServicesForMechanic,
   getServiceDetails,
   getRunningServiceDetails,
+  cancelService,
 };

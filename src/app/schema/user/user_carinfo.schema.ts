@@ -13,7 +13,6 @@ export const UserCars = pgTable("user_cars", {
   vin_code: varchar("vin_code", { length: 100 }),
   license_plate: varchar("license_plate", { length: 50 }),
   tag_number: varchar("tag_number", { length: 50 }),
-
   ...timestamps,
 });
 
