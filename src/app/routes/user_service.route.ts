@@ -31,4 +31,9 @@ router.get(
   auth(["mechanic"]),
   UserServiceController.getServiceDetails
 );
+router.patch(
+  "/cancel_service/:s_id",
+  auth(["mechanic"]),
+  UserServiceController.cancelService
+);
 export const ServiceRoute = router;
