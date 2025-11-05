@@ -99,30 +99,6 @@ const getUsersRunningProgress = async (user_id: string) => {
     .limit(1);
   return result[0] || null;
 };
-
-const getMechanicsRunningProgress = async (mechanic_id: string) => {
-  // Allowed running statuses
-  const runningStatuses = ["ON_THE_WAY", "WORKING", "NEED_TO_PAY"] as const;
-
-  // Query latest service with its progress
-  const result = await db
-    .select({
-      service_id: ServiceProgress.service_id,
-      created_at: ServiceProgress.created_at,
-      updated_at: ServiceProgress.updated_at,
-    })
-    .from(ServiceProgress)
-    .where(
-      and(
-        eq(ServiceProgress.mechanic_id, mechanic_id),
-        inArray(ServiceProgress.service_status, runningStatuses)
-      )
-    )
-    .orderBy(desc(ServiceProgress.updated_at))
-    .limit(1);
-  return result[0] || null;
-};
-
 const getUsersAllRunningServiceProgress = async (
   status: TServiceStatus,
   user_id: string
@@ -276,6 +252,28 @@ const getMechanicsAllRunningServiceProgress = async (
 
   return result;
 };
+const getMechanicsRunningProgress = async (mechanic_id: string) => {
+  // Allowed running statuses
+  const runningStatuses = ["ON_THE_WAY", "WORKING", "NEED_TO_PAY"] as const;
+
+  // Query latest service with its progress
+  const result = await db
+    .select({
+      service_id: ServiceProgress.service_id,
+      created_at: ServiceProgress.created_at,
+      updated_at: ServiceProgress.updated_at,
+    })
+    .from(ServiceProgress)
+    .where(
+      and(
+        eq(ServiceProgress.mechanic_id, mechanic_id),
+        inArray(ServiceProgress.service_status, runningStatuses)
+      )
+    )
+    .orderBy(desc(ServiceProgress.updated_at))
+    .limit(1);
+  return result[0] || null;
+};
 
 const cancelService = async (s_id: string, reason: string, role: TUserRole) => {
   const [data] = await db
@@ -291,6 +289,13 @@ const cancelService = async (s_id: string, reason: string, role: TUserRole) => {
   return data;
 };
 
+const usersCarServiceHistory = async (user_id: string) => {
+  const history = await db.query.ServiceProgress.findMany({
+    where: eq(ServiceProgress.user_id, user_id),
+    with: { service_data: { with: { car_info: true } }, payment: true },
+  });
+};
+
 export const ServiceProgressRepository = {
   updateServiceProgress,
   findServiceProgressData,
@@ -299,6 +304,7 @@ export const ServiceProgressRepository = {
   getMechanicsAllRunningServiceProgress,
   getUsersAllRunningServiceProgress,
   cancelService,
+  usersCarServiceHistory,
 };
 
 // ====================== SubQuery =============================

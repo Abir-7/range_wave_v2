@@ -33,6 +33,21 @@ const markAsComplete = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getUsersCarServiceHistory = catchAsync(
+  async (req: Request, res: Response) => {
+    const result = await ServiceProgressService.getUsersCarServiceHistory(
+      req.user.user_id
+    );
+
+    sendResponse(res, {
+      success: true,
+      message: "User car service history.",
+      status_code: 200,
+      data: result,
+    });
+  }
+);
+
 const acceptOrRejectExtraWork = catchAsync(
   async (req: Request, res: Response) => {
     const result = await ServiceProgressService.acceptOrRejectExtraWork(
@@ -103,4 +118,5 @@ export const ServiceProgressController = {
   getAllRunningServiceProgressOfUserOrMechanic,
   addExtraWorkData,
   acceptOrRejectExtraWork,
+  getUsersCarServiceHistory,
 };

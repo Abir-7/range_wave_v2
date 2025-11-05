@@ -20,6 +20,12 @@ router.patch(
   auth(["user"]),
   ServiceProgressController.markAsComplete
 );
+router.get(
+  "/user_car_history",
+  auth(["user"]),
+  ServiceProgressController.getUsersCarServiceHistory
+);
+
 router.patch(
   "/add_extra_work/:s_id",
   auth(["mechanic"]),

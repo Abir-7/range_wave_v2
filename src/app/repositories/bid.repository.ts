@@ -167,6 +167,11 @@ const getBidDetails = async (bid_id: string) => {
   return avgRating
     ? {
         ...data,
+        price: Number(data?.price || 0),
+        mechanic_workshop: {
+          ...data?.mechanic_workshop,
+          coordinates: data?.mechanic_workshop.coordinates?.map(Number),
+        },
         rating: {
           avg_rating: Number(Number(avgRating[0].avg_rating).toFixed(1)),
           total_ratings: Number(avgRating[0].total_ratings),

@@ -54,7 +54,11 @@ const hireMechanic = async (
       tx
     );
 
-    return updated_data;
+    const keys = ["id", "bid_id", "service_id", "user_id", "mechanic_id"];
+    const selected = Object.fromEntries(
+      keys.map((key) => [key, updated_data[key as keyof typeof updated_data]])
+    );
+    return selected;
   });
 };
 
@@ -174,6 +178,10 @@ const acceptOrRejectExtraWork = async (
   );
 };
 
+const getUsersCarServiceHistory = async (user_id: string) => {
+  return await ServiceProgressRepository.usersCarServiceHistory(user_id);
+};
+
 // mechanic
 const addExtraWorkData = async (
   data: {
@@ -220,6 +228,7 @@ export const ServiceProgressService = {
   hireMechanic,
   changeServiceStatus,
   markAsComplete,
+  getUsersCarServiceHistory,
   getAllRunningServiceProgress,
   addExtraWorkData,
   acceptOrRejectExtraWork,
