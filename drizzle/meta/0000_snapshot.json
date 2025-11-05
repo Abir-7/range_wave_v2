@@ -1,5 +1,5 @@
 {
-  "id": "a07b3c10-7a88-4fda-b997-2401e8cbed89",
+  "id": "f7b47442-be45-420d-aadd-ff60b464f931",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -745,6 +745,13 @@
           "primaryKey": false,
           "notNull": true,
           "default": "'FINDING'"
+        },
+        "cancel_by": {
+          "name": "cancel_by",
+          "type": "cancel_by",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
         },
         "is_scheduled": {
           "name": "is_scheduled",
@@ -1701,6 +1708,15 @@
       "values": [
         "provided",
         "declined"
+      ]
+    },
+    "public.cancel_by": {
+      "name": "cancel_by",
+      "schema": "public",
+      "values": [
+        "USER",
+        "MECHANIC",
+        "ADMIN"
       ]
     },
     "public.extra_work_accept_enum": {

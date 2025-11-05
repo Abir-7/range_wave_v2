@@ -1,54 +1,48 @@
-import { MessagesRelations } from "../schema/chat/message/message.schema";
+import { Messages, MessagesRelations } from "../schema/message.schema";
 // Make sure to install the 'pg' package
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import { appConfig } from "../config/appConfig";
-import {
-  UserAuthentications,
-  UserAuthenticationsRelations,
-} from "../schema/user/user_authentication.schema";
+
+import { Bids, BidsRelations } from "../schema/bid.schema";
+import { Services, ServicesRelations } from "../schema/service.schema";
+import { Payments_for_workshop } from "../schema/payment_for_workshop";
+import { Users, UsersRelations } from "../schema/user.schema";
 import {
   UserProfiles,
   UserProfilesRelations,
-} from "../schema/user/user_profiles.schema";
-import { Users, UsersRelations } from "../schema/user/user.schema";
-import {
-  MechanicWorkshop,
-  MechanicWorkshopRelations,
-} from "../schema/user/mechanics_workshop.schema";
-import {
-  MechanicPaymentData,
-  UserPaymentDataRelations,
-} from "../schema/user/mechanic_payment_data.schema";
-import {
-  UserCars,
-  UserCarsRelations,
-} from "../schema/user/user_carinfo.schema";
+} from "../schema/user_profiles.schema";
 import {
   UserLocations,
   UserLocationsRelations,
-} from "../schema/user/user_location.schema";
-import { ChatRooms, ChatRoomsRelations } from "../schema/chat/room/room.schema";
-import { Messages } from "../schema/chat/message/message.schema";
+} from "../schema/user_location.schema";
+import {
+  MechanicWorkshop,
+  MechanicWorkshopRelations,
+} from "../schema/mechanics_workshop.schema";
+import {
+  MechanicPaymentData,
+  UserPaymentDataRelations,
+} from "../schema/mechanic_payment_data.schema";
+import { UserCars, UserCarsRelations } from "../schema/user_carinfo.schema";
+import {
+  UserAuthentications,
+  UserAuthenticationsRelations,
+} from "../schema/user_authentication.schema";
+import { ChatRooms, ChatRoomsRelations } from "../schema/room.schema";
 import {
   RatingByMechanic,
   RatingByMechanicRelations,
-} from "../schema/rating/given_by_mechanic/given_by_mechanic.schema";
+} from "../schema/given_by_mechanic.schema";
 import {
   RatingByUser,
   RatingByUserRelations,
-} from "../schema/rating/given_by_user/given_by_user.schema";
-import { Payments, PaymentsRelations } from "../schema/payment/payment.schema";
+} from "../schema/given_by_user.schema";
+import { Payments, PaymentsRelations } from "../schema/payment.schema";
 import {
   ServiceProgress,
   ServiceProgressRelation,
-} from "../schema/service_flow/progress/service_progress.schema";
-import { Bids, BidsRelations } from "../schema/service_flow/bid/bid.schema";
-import {
-  Services,
-  ServicesRelations,
-} from "../schema/service_flow/service/service.schema";
-import { Payments_for_workshop } from "../schema/payment/payment_for_workshop";
+} from "../schema/service_progress.schema";
 
 const pool = new Pool({
   connectionString: appConfig.database.dataBase_uri,

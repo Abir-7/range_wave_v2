@@ -38,6 +38,6 @@ export const auth =
 
       next();
     } catch (err: any) {
-      throw new Error(err);
+      throw new AppError(err?.message || err, 401);
     }
   };

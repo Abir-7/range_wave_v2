@@ -5,17 +5,36 @@ import { upload } from "../middleware/multer/multer";
 import { parseDataField } from "../middleware/parseData";
 
 const router = Router();
-router.patch(
-  "/update_workshop",
-  auth(["mechanic"]),
-  UserController.updateMechanicsWorkshopData
+//user
+router.post("/add_new_car", auth(["user"]), UserController.addUsersNewCar);
+router.post(
+  "/get_car_list_of_a_user",
+  auth(["user"]),
+  UserController.getAllCarOfaUser
 );
+
 router.patch(
   "/update_car_info",
   auth(["user"]),
   UserController.updateUserCarData
 );
-
+// mechanic
+router.patch(
+  "/update_workshop",
+  auth(["mechanic"]),
+  UserController.updateMechanicsWorkshopData
+);
+router.get(
+  "/connect_stripe_account",
+  auth(["mechanic"]),
+  UserController.createAndConnectStripeAccount
+);
+router.get(
+  "/get_mechanic_earning_data",
+  auth(["mechanic"]),
+  UserController.getMechanicsEarningData
+);
+// common
 router.patch(
   "/update_user_profile",
   auth(["user", "mechanic"]),
@@ -23,17 +42,4 @@ router.patch(
   parseDataField("data"),
   UserController.updateUserProfile
 );
-
-router.get(
-  "/connect_stripe_account",
-  auth(["mechanic"]),
-  UserController.createAndConnectStripeAccount
-);
-
-router.get(
-  "/get_mechanic_earning_data",
-  auth(["mechanic"]),
-  UserController.getMechanicsEarningData
-);
-
 export const UserRoute = router;

@@ -9,7 +9,7 @@ import {
 } from "../middleware/auth/auth.interface";
 import getOtp from "../utils/helper/getOtp";
 import getExpiryTime from "../utils/helper/getExpiryTime";
-import { publishJob } from "../lib/rabbitMq/publisher";
+
 import isExpired from "../utils/helper/isExpired";
 import { UserRepository } from "../repositories/user.repository";
 import { logger } from "../utils/serverTools/logger";
@@ -20,6 +20,7 @@ import { appConfig } from "../config/appConfig";
 import { getRemainingMinutes } from "../utils/helper/getRemainingMitutes";
 import comparePassword from "../utils/helper/comparePassword";
 import { AuthRepository } from "../repositories/auth.repository";
+import { emailQueue } from "../lib/bullmq/queues/email.queue";
 
 const registerUser = async (
   userData: { email: string; password: string; role: TUserRole },
@@ -88,21 +89,31 @@ const registerUser = async (
         );
       }
 
-      if (userData.role === "user") {
-        await AuthRepository.createUserCarinfo({ user_id: user.id }, trx);
-      }
+      // if (userData.role === "user") {
+      //   await AuthRepository.createUserCarinfo({ user_id: user.id }, trx);
+      // }
 
       await AuthRepository.createUserLocationinfo({ user_id: user.id }, trx);
 
       return { user };
     });
-    publishJob("emailQueue", {
+    // publishJob("emailQueue", {
+    //   to: user.email,
+    //   subject: "Verification",
+    //   code: otp,
+    //   project_name: "WrenchWave",
+    //   expire_time: "10 min",
+    //   purpose: "Verify your email",
+    // });
+
+    await emailQueue.add("sendEmail", {
       to: user.email,
       subject: "Verification",
       code: otp,
       project_name: "WrenchWave",
-      expire_time: "10 min",
+      expire_time: 10,
       purpose: "Verify your email",
+      body: "",
     });
 
     return { id: user.id, email: user.email };
@@ -269,13 +280,23 @@ const resendCode = async (user_id: string) => {
     verification_type: "resend",
   });
 
-  await publishJob("emailQueue", {
+  // await publishJob("emailQueue", {
+  //   to: user_data.email,
+  //   subject: "Resend",
+  //   code: code,
+  //   project_name: "WrenchWave",
+  //   expire_time: "10 min",
+  //   purpose: "verify",
+  // });
+
+  await emailQueue.add("sendEmail", {
     to: user_data.email,
-    subject: "Resend",
+    subject: "Verification",
     code: code,
     project_name: "WrenchWave",
-    expire_time: "10 min",
-    purpose: "verify",
+    expire_time: 10,
+    purpose: "Verify your email",
+    body: "",
   });
 };
 
@@ -297,14 +318,25 @@ const forgotPassword = async (user_email: string) => {
     verification_type: "forgot-password",
   });
 
-  await publishJob("emailQueue", {
+  // await publishJob("emailQueue", {
+  //   to: user_data.email,
+  //   subject: "Forgot Password",
+  //   code: code,
+  //   project_name: "WrenchWave",
+  //   expire_time: "10 min",
+  //   purpose: "verify",
+  // });
+
+  await emailQueue.add("sendEmail", {
     to: user_data.email,
-    subject: "Forgot Password",
+    subject: "Verification",
     code: code,
     project_name: "WrenchWave",
-    expire_time: "10 min",
-    purpose: "verify",
+    expire_time: 10,
+    purpose: "Verify your email",
+    body: "",
   });
+
   return {
     message: "A code has been sent to your email.",
     user_id: user_data.id,

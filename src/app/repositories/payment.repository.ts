@@ -1,10 +1,10 @@
-import { Bids } from "./../schema/service_flow/bid/bid.schema";
+import { Bids } from "../schema/bid.schema";
 import { status } from "http-status";
 import { and, eq } from "drizzle-orm";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
-import { Payments } from "../schema/payment/payment.schema";
+import { Payments } from "../schema/payment.schema";
 import { db, schema } from "../db";
-import { ServiceProgress } from "../schema/service_flow/progress/service_progress.schema";
+import { ServiceProgress } from "../schema/service_progress.schema";
 
 const savePament = async (
   data: typeof Payments.$inferInsert,

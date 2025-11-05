@@ -1,9 +1,10 @@
 import { eq } from "drizzle-orm";
 import { db } from ".";
-import { Users } from "../schema/user/user.schema";
+
 import getHashedPassword from "../utils/helper/getHashedPassword";
 import { logger } from "../utils/serverTools/logger";
 import { appConfig } from "../config/appConfig";
+import { Users } from "../schema/user.schema";
 
 export async function seedAdmin() {
   try {

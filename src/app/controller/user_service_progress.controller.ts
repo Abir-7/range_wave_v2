@@ -3,7 +3,7 @@ import catchAsync from "../utils/serverTools/catchAsync";
 
 import sendResponse from "../utils/serverTools/sendResponse";
 import { ServiceProgressService } from "../services/user_service_progress.service";
-import { TServiceStatus } from "../schema/service_flow/progress/service_progress.schema";
+import { TServiceStatus } from "../schema/service_progress.schema";
 
 const hireMechanic = catchAsync(async (req: Request, res: Response) => {
   const result = await ServiceProgressService.hireMechanic(

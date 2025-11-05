@@ -1,8 +1,8 @@
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { db, schema } from "../db";
-import { RatingByMechanic } from "../schema/rating/given_by_mechanic/given_by_mechanic.schema";
+import { RatingByMechanic } from "../schema/given_by_mechanic.schema";
 import { eq, sql } from "drizzle-orm";
-import { RatingByUser } from "../schema/rating/given_by_user/given_by_user.schema";
+import { RatingByUser } from "../schema/given_by_user.schema";
 
 const transaction = async <T>(
   callback: (tx: NodePgDatabase<typeof schema>) => Promise<T>

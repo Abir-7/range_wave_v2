@@ -20,9 +20,7 @@ export const consumeQueue = async (
       async (msg) => {
         if (!msg) return;
 
-        console.log("Raw message buffer:", msg.content); // Buffer
         const str = msg.content.toString();
-        console.log("Raw message string:", str);
 
         let data;
         try {
@@ -32,8 +30,6 @@ export const consumeQueue = async (
           channel.nack(msg, false, false); // discard bad message
           return;
         }
-
-        console.log("Parsed data object:", data); // Should be your object
 
         try {
           await handler(data);

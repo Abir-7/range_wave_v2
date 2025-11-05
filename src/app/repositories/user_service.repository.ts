@@ -1,14 +1,15 @@
 import { Repository } from "./helper.repository";
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { db, schema } from "../db";
-import { Services } from "../schema/service_flow/service/service.schema";
-import { ServiceProgress } from "../schema/service_flow/progress/service_progress.schema";
+import { Services } from "../schema/service.schema";
+
 import { and, desc, eq, inArray, isNull, notExists, sql } from "drizzle-orm";
-import { Bids } from "../schema/service_flow/bid/bid.schema";
-import { RatingByMechanic } from "../schema/rating/given_by_mechanic/given_by_mechanic.schema";
-import { UserProfiles } from "../schema/user/user_profiles.schema";
-import { Users } from "../schema/user/user.schema";
-import { UserCars } from "../schema/user/user_carinfo.schema";
+import { Bids } from "../schema/bid.schema";
+import { RatingByMechanic } from "../schema/given_by_mechanic.schema";
+import { ServiceProgress } from "../schema/service_progress.schema";
+import { UserProfiles } from "../schema/user_profiles.schema";
+import { UserCars } from "../schema/user_carinfo.schema";
+import { Users } from "../schema/user.schema";
 
 const makeServiceReq = async (
   data: typeof Services.$inferInsert,
@@ -128,7 +129,7 @@ const getServiceDetails = async (s_id: string) => {
     })
     .from(Services)
     .leftJoin(UserProfiles, eq(UserProfiles.user_id, Services.user_id))
-    .leftJoin(UserCars, eq(UserCars.user_id, Services.user_id))
+    .leftJoin(UserCars, eq(UserCars.id, Services.car_id))
     .where(eq(Services.id, s_id))
     .limit(1);
 

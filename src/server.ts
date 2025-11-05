@@ -7,8 +7,8 @@ import { db } from "./app/db";
 import redis from "./app/lib/radis";
 import { initSocket } from "./app/lib/socket";
 import { seedAdmin } from "./app/db/seed_admin";
-
-// Create HTTP server
+import "./app/lib/bullmq/worker/all_worker";
+// Create HTT P server
 const server = http.createServer(app);
 
 // Start server
@@ -18,7 +18,7 @@ server.listen(appConfig.server.port, async () => {
       `🚀 Server running in ${appConfig.server.node_env} mode on port ${appConfig.server.port}`
     );
     await db.execute("select 1").then(() => logger.info("Database connected."));
-    await startConsumers(); // start RabbitMQ consumers
+    // await startConsumers(); // start RabbitMQ consumers
     initSocket(server);
     await seedAdmin();
   } catch (err) {

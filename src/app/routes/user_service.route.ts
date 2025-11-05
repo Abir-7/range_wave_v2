@@ -1,12 +1,15 @@
 import { Router } from "express";
 import { auth } from "../middleware/auth/auth";
 import { UserServiceController } from "../controller/user_service.controller";
+import { validator } from "../middleware/validator";
+import { ZodIssueSchema } from "../dtos/user_service.dto";
 
 const router = Router();
 
 router.post(
   "/make_service_req",
   auth(["user"]),
+  validator(ZodIssueSchema),
   UserServiceController.makeServiceReq
 );
 

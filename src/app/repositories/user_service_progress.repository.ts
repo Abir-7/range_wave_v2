@@ -1,17 +1,19 @@
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
+
+import { db, schema } from "../db";
+import { and, desc, eq, inArray, or, sql } from "drizzle-orm";
+import { RatingByUser } from "../schema/given_by_user.schema";
+import { RatingByMechanic } from "../schema/given_by_mechanic.schema";
+
+import { alias } from "drizzle-orm/pg-core";
+import { Services } from "../schema/service.schema";
+import { Bids } from "../schema/bid.schema";
+import { TUserRole } from "../middleware/auth/auth.interface";
+import { UserProfiles } from "../schema/user_profiles.schema";
 import {
   ServiceProgress,
   TServiceStatus,
-} from "../schema/service_flow/progress/service_progress.schema";
-import { db, schema } from "../db";
-import { and, desc, eq, inArray, or, sql } from "drizzle-orm";
-import { RatingByUser } from "../schema/rating/given_by_user/given_by_user.schema";
-import { RatingByMechanic } from "../schema/rating/given_by_mechanic/given_by_mechanic.schema";
-import { UserProfiles } from "../schema/user/user_profiles.schema";
-import { alias } from "drizzle-orm/pg-core";
-import { Services } from "../schema/service_flow/service/service.schema";
-import { Bids } from "../schema/service_flow/bid/bid.schema";
-import { TUserRole } from "../middleware/auth/auth.interface";
+} from "../schema/service_progress.schema";
 
 const updateServiceProgress = async (
   data: Partial<typeof ServiceProgress.$inferInsert>,

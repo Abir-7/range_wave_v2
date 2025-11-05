@@ -1,15 +1,16 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, ne } from "drizzle-orm";
 import { db } from "../db";
-import { Bids } from "../schema/service_flow/bid/bid.schema";
-import { Services } from "../schema/service_flow/service/service.schema";
-import { UserProfiles } from "../schema/user/user_profiles.schema";
-import { Users } from "../schema/user/user.schema";
-import { ServiceProgress } from "../schema/service_flow/progress/service_progress.schema";
-import { RatingByMechanic } from "../schema/rating/given_by_mechanic/given_by_mechanic.schema";
+import { Bids } from "../schema/bid.schema";
+import { Services } from "../schema/service.schema";
+
+import { RatingByMechanic } from "../schema/given_by_mechanic.schema";
 import { sql } from "drizzle-orm";
 
-import { MechanicWorkshop } from "../schema/user/mechanics_workshop.schema";
 import { Repository } from "./helper.repository";
+import { UserProfiles } from "../schema/user_profiles.schema";
+import { ServiceProgress } from "../schema/service_progress.schema";
+import { Users } from "../schema/user.schema";
+import { MechanicWorkshop } from "../schema/mechanics_workshop.schema";
 
 const addBid = async (data: typeof Bids.$inferInsert) => {
   const [created_bid] = await db.insert(Bids).values(data).returning();
@@ -174,9 +175,35 @@ const getBidDetails = async (bid_id: string) => {
     : {};
 };
 
+const handleMechanicBidStatus = async (bidId: string) => {
+  // for bg job when hired
+  const [bid] = await db.select().from(Bids).where(eq(Bids.id, bidId));
+
+  if (!bid) {
+    throw new Error("Bid not found");
+  }
+
+  const { service_id } = bid;
+
+  // 2️⃣ Update the chosen bid to 'accepted'
+  await db
+    .update(Bids)
+    .set({ bid_hired_status: "accepted" })
+    .where(eq(Bids.id, bidId));
+
+  // 3️⃣ Update all other bids for the same service to 'declined'
+  await db
+    .update(Bids)
+    .set({ bid_hired_status: "declined" })
+    .where(and(eq(Bids.service_id, service_id), ne(Bids.id, bidId)));
+
+  return { message: "Bid accepted and other bids declined" };
+};
+
 export const BidRepository = {
   addBid,
   getMechanicBidHistory,
   getBidListOfaService,
   getBidDetails,
+  handleMechanicBidStatus,
 };

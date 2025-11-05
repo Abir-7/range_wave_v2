@@ -5,7 +5,7 @@ import { appConfig } from "../config/appConfig";
 import { stripe } from "../config/stripe";
 import Stripe from "stripe";
 import { db } from "../db";
-import { Payments } from "../schema/payment/payment.schema";
+import { Payments } from "../schema/payment.schema";
 import { PaymentRepository } from "../repositories/payment.repository";
 import { ServiceProgressRepository } from "../repositories/user_service_progress.repository";
 import { Repository } from "../repositories/helper.repository";

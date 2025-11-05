@@ -9,10 +9,8 @@
     "dev": "ts-node-dev --respawn --transpile-only ./src/server.ts",
     "drizzle:generate": "npx drizzle-kit generate",
     "drizzle:migrate": "npx drizzle-kit migrate",
-  "build": "tsc",                           
-  "start": "node dist/server.js"
- 
-
+    "build": "tsc",
+    "start": "node dist/server.js"
   },
   "keywords": [],
   "author": "",
@@ -37,8 +35,11 @@
     "typescript-eslint": "^8.46.0"
   },
   "dependencies": {
+    "@bull-board/api": "^6.14.0",
+    "@bull-board/express": "^6.14.0",
     "amqplib": "^0.10.9",
     "bcryptjs": "^3.0.2",
+    "bullmq": "^5.63.0",
     "cors": "^2.8.5",
     "date-fns": "^4.1.0",
     "dotenv": "^17.2.3",
@@ -47,7 +48,7 @@
     "express-rate-limit": "^8.1.0",
     "helmet": "^8.1.0",
     "http-status": "^2.1.0",
-    "ioredis": "^5.8.1",
+    "ioredis": "^5.8.2",
     "jsonwebtoken": "^9.0.2",
     "jwt-decode": "^4.0.0",
     "multer": "^2.0.2",

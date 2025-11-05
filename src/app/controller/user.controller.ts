@@ -74,6 +74,7 @@ const createAndConnectStripeAccount = catchAsync(
     });
   }
 );
+
 const getMechanicsEarningData = catchAsync(
   async (req: Request, res: Response) => {
     const result = await UserService.getMechanicsEarningData(req.user.user_id);
@@ -86,10 +87,35 @@ const getMechanicsEarningData = catchAsync(
     });
   }
 );
+
+const addUsersNewCar = catchAsync(async (req: Request, res: Response) => {
+  const result = await UserService.addNewUserCar(req.user.user_id, req.body);
+
+  sendResponse(res, {
+    success: true,
+    message: "New car data added successfully",
+    status_code: 200,
+    data: result,
+  });
+});
+
+const getAllCarOfaUser = catchAsync(async (req: Request, res: Response) => {
+  const result = await UserService.getAllCarOfUser(req.user.user_id);
+
+  sendResponse(res, {
+    success: true,
+    message: "Car list fetched successfully",
+    status_code: 200,
+    data: result,
+  });
+});
+
 export const UserController = {
   updateMechanicsWorkshopData,
   createAndConnectStripeAccount,
   updateUserCarData,
   updateUserProfile,
   getMechanicsEarningData,
+  addUsersNewCar,
+  getAllCarOfaUser,
 };

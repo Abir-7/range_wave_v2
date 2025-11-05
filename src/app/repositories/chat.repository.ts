@@ -1,8 +1,8 @@
 import { NodePgDatabase } from "drizzle-orm/node-postgres";
-import { ChatRooms } from "../schema/chat/room/room.schema";
+import { ChatRooms } from "../schema/room.schema";
 import { db, schema } from "../db";
 import { and, eq } from "drizzle-orm";
-import { Messages } from "../schema/chat/message/message.schema";
+import { Messages } from "../schema/message.schema";
 import redis from "../lib/radis";
 
 const makeNewChatRoom = async (

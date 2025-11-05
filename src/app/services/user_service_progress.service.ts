@@ -1,8 +1,5 @@
-import { IPaymentType } from "../schema/payment/payment.schema";
-import {
-  TExtraWorkAcceptStatus,
-  TServiceStatus,
-} from "../schema/service_flow/progress/service_progress.schema";
+import { IPaymentType } from "../schema/payment.schema";
+
 import { TUserRole } from "../middleware/auth/auth.interface";
 import { ChatRepository } from "../repositories/chat.repository";
 import { Repository } from "../repositories/helper.repository";
@@ -11,6 +8,10 @@ import { UserRepository } from "../repositories/user.repository";
 import { ServiceProgressRepository } from "../repositories/user_service_progress.repository";
 import { AppError } from "../utils/serverTools/AppError";
 import { StripeService } from "./stripe.service";
+import {
+  TExtraWorkAcceptStatus,
+  TServiceStatus,
+} from "../schema/service_progress.schema";
 
 const hireMechanic = async (
   data: {

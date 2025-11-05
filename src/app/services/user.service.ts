@@ -76,24 +76,15 @@ const createAndConnectStripeAccount = async (
   );
 };
 
-const updateUserCarInfo = async (user_id: string, car_data: TUpdateUserCar) => {
+const updateUserCarInfo = async (car_id: string, car_data: TUpdateUserCar) => {
   return await Repository.transaction(async (tx) => {
-    const update_profile = await UserRepository.updateUserProfile(
-      user_id,
-      {
-        is_profile_completed: true,
-      },
-      tx
-    );
-
     const updated_car_info = await UserRepository.updateUserCarData(
       car_data,
-      user_id
+      car_id
     );
 
     return {
       ...updated_car_info,
-      is_profile_updated: update_profile.is_profile_completed,
     };
   });
 };
@@ -146,10 +137,38 @@ const getMechanicsEarningData = async (mechanic_id: string) => {
   return await PaymentRepository.getMechanicsEarningData(mechanic_id);
 };
 
+const addNewUserCar = async (user_id: string, car_data: any) => {
+  const user_data = await UserRepository.getProfileData(user_id);
+
+  if (!user_data) {
+    throw new AppError("User not found.", 404);
+  }
+
+  return await Repository.transaction(async (tx) => {
+    if (!user_data?.is_profile_completed && user_data?.user?.role === "user") {
+      await UserRepository.updateUserProfile(
+        user_id,
+        {
+          is_profile_completed: true,
+        },
+        tx
+      );
+    }
+
+    await UserRepository.createUserCarinfo({ ...car_data, user_id }, tx);
+  });
+};
+
+const getAllCarOfUser = async (user_id: string) => {
+  return await UserRepository.getAllCarOfaUser(user_id);
+};
+
 export const UserService = {
   updateMechanicsWorkshopData,
   createAndConnectStripeAccount,
   updateUserCarInfo,
   updateUserProfile,
   getMechanicsEarningData,
+  addNewUserCar,
+  getAllCarOfUser,
 };

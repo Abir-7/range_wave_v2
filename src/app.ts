@@ -7,7 +7,10 @@ import { notFound } from "./app/middleware/notFound";
 import path from "path";
 import router from "./app/routes";
 import { StripeController } from "./app/controller/stripe.controller";
-
+import { ExpressAdapter } from "@bull-board/express";
+import { createBullBoard } from "@bull-board/api";
+import { BullMQAdapter } from "@bull-board/api/bullMQAdapter";
+import { emailQueue } from "./app/lib/bullmq/queues/email.queue";
 const app = express();
 // Rate limiting
 const limiter = rateLimit({
@@ -46,6 +49,13 @@ app.get("/", (req, res) => {
   res.send("Server is ok.");
 });
 
+const serverAdapter = new ExpressAdapter();
+serverAdapter.setBasePath("/admin/queues");
+createBullBoard({
+  queues: [new BullMQAdapter(emailQueue)],
+  serverAdapter,
+});
+app.use("/admin/queues", serverAdapter.getRouter());
 app.use(express.static(path.join(process.cwd(), "uploads")));
 
 // Error handler
